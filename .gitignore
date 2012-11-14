@@ -38,3 +38,4 @@ nosetests.xml
 
 .idea/
 .xml
+text_save.txt

@@ -10,13 +10,14 @@ class HTMLParse(HTMLParser):
     def handle_starttag(self, tag, attrs):
         print "Start tag:", tag
     def handle_endtag(self, tag):
-        print "End tag :", tag
+        print "End tag:", tag
     def handle_data(self, data):
-        print "Encountered some data  :", data
+        print "Data:", data
 
 
 parse  = HTMLParse()
-parse.feed(python2html_output.read())
+#parse.feed(python2html_output.read())
+parse.handle_data(python2html_output.read())
 
 '''
 class jsInjection(filename)
