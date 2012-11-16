@@ -7,7 +7,7 @@ def python2html(pyout):
 
     output = pyout.replace("\n", "<br \>")  # add a break to a new line
 
-    start_tag= '<body>\n\t\t<p>' # start html body
+    start_tag= '<body onload="setUpTangle();">\n\t\t<p id="test">' # start html body and load Tangle
     end_tag='</p>\n</body>' #end html body
 
     html= start_tag + output + end_tag # combine everything in string
@@ -20,10 +20,17 @@ def python2html(pyout):
 
 # Example code for python2html function
 def example():
-    in1='When you eat 3 cookies [parent variable, class identifier, param_start, param_end, function]\n' \
-        ' you consume 150 [child variable,  class identifier] calories.'
+    in1="When you eat 3 cookies {'variable': '\"cookies\"', 'class': '\"TKAdjustableNumber\"', 'mini': '\"1\"', 'maxi': '\"100\"'} \n" \
+         "you consume 150 calories."
 
     print python2html(in1)
+'''
+# Original in1
+    in1='When you eat 3 cookies [parent variable, class identifier, param_start, param_end, function]\n'\
+        ' you consume 150 [child variable,  class identifier] calories.'
+'''
+
+
 
 example()
 
