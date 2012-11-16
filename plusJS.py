@@ -40,7 +40,7 @@ def bodyInjector(python2html_output):
 
 def headerInjector(python2html_output):
     header = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> \n' \
-    '<title>Tangle document</title> \n' \
+    '<title>entangle document</title> \n' \
     '<script type="text/javascript" src="Tangle.js"></script> \n' \
     '<link rel="stylesheet" href="TangleKit/TangleKit.css" type="text/css"> \n' \
     '<script type="text/javascript" src="TangleKit/mootools.js"></script> \n' \
