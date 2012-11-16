@@ -23,6 +23,15 @@ class Application(Frame):
         finally:
             fout.close()
 
+    def boldText(self):
+        # Bolds highlighted text
+        self.text.tag_add("bt", "sel.first", "sel.last")
+        self.text.tag_config("bt", font="bold")
+
+    def appendText(self):
+        # Inserts text at end of highlighted text
+        self.text.insert("sel.last", "end")
+
     def createWidgets(self):
         # Makes window stretchable
         top=self.winfo_toplevel()
@@ -35,7 +44,7 @@ class Application(Frame):
         self.columnconfigure(1, weight=1)
 
         # Makes 'Create variable' button
-        self.createVariable = Button(self, text='Create variable')
+        self.createVariable = Button(self, text='Create variable', command=self.appendText)
         self.createVariable.grid(column=0, row=0, sticky=N+E+S+W)
 
         # Makes 'Link values' button
