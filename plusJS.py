@@ -39,8 +39,14 @@ def bodyInjector(python2html_output):
     return bodyoutput
 
 def headerInjector(python2html_output):
+
+    # Using pre-written header for the moment
+
+ #   header = open('header.txt').read()
+
+
     header = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> \n' \
-    '<title>entangle document</title> \n' \
+    '<title>entangle</title> \n' \
     '<script type="text/javascript" src="Tangle.js"></script> \n' \
     '<link rel="stylesheet" href="TangleKit/TangleKit.css" type="text/css"> \n' \
     '<script type="text/javascript" src="TangleKit/mootools.js"></script> \n' \
@@ -49,7 +55,7 @@ def headerInjector(python2html_output):
     '<script type="text/javascript" src="TangleKit/TangleKit.js"></script> \n' \
     '<script type="text/javascript"> \n' \
     'function setUpTangle () { \n' \
-    'var element = document.getElementById("example"); \n' \
+    'var element = document.getElementById("test"); \n' \
     'var tangle = new Tangle(element, { \n' \
     'initialize: function () { \n' \
     'this.cookies = 4; \n' \
@@ -62,11 +68,12 @@ def headerInjector(python2html_output):
     '} \n' \
     '</script>'
 
+
     return header
 
 
 start_tag= '<html>\n\t\t<header>' # start html body
-end_header = '<\n<\header>'
+end_header = '\n</header>\n'
 end_tag='\n</html>' #end html body
 
 output = start_tag + headerInjector(python2html_output) + end_header + bodyInjector(python2html_output) + end_tag
