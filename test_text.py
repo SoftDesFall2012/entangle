@@ -11,18 +11,83 @@ import pango
 
 
 class Buffer(gtk.TextBuffer):
-    N_COLORS = 16
-    PANGO_SCALE = 1024
-
     def __init__(self):
         gtk.TextBuffer.__init__(self)
         tt = self.get_tag_table()
-        self.refcount = 0
-        self.filename = None
-        self.untitled_serial = -1
+
+        # A list to hold our active tags
+        self.tags_on = []
+        # Our Bold tag.
+        self.tag_bold = self.create_tag("bold", weight=pango.WEIGHT_BOLD)
+
+    def make_bold(self):
+        ''' add "bold" to our active tags list '''
+        if 'bold' in self.tags_on:
+            del self.tags_on[self.tags_on.index('bold')]
+        else:
+            self.tags_on.append('bold')
+
 
 
 class TextEditor:
+    def __init__(self, buffer = None):
+        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.connect("destroy", self.close_application)
+        window.set_title("ENTANGLE")
+
+        window.set_size_request(500, 500)
+
+        self.menu_items = (
+            ( "/_File",         None,         None, 0, "<Branch>" ),
+            ( "/File/_New",     "<control>N", self.do_new, 0, None ),
+            ( "/File/_Open",    "<control>O", None, 0, None ),
+            ( "/File/_Save",    "<control>S", self.print_hello, 0, None ),
+            ( "/File/Save _As", None,         None, 0, None ),
+            ( "/File/sep1",     None,         None, 0, "<Separator>" ),
+            ( "/File/Quit",     "<control>Q", gtk.main_quit, 0, None ),
+            ( "/_Functions",      None,         None, 0, "<Branch>" ),
+            ( "/Functions/Create Variable", None, self.do_create_variable, 0, None ),
+            ( "/Functions/Link",  None,        self.do_link_variable, 0, None ),
+            ( "/Functions/Print Selected",  None,   self.do_bold, 0, None ),
+            ( "/_Help",         None,         None, 0, "<LastBranch>" ),
+            ( "/_Help/About",   None,         None, 0, None ),
+            )
+
+        buffer = Buffer()
+
+
+        main_vbox = gtk.VBox(False, 1)
+        main_vbox.set_border_width(1)
+        window.add(main_vbox)
+        main_vbox.show()
+
+        menubar = self.get_main_menu(window)
+
+        main_vbox.pack_start(menubar, False, True, 0)
+        menubar.show()
+
+        box1 = gtk.VBox(False, 20) #expand =False
+        main_vbox.pack_start(box1, True,True,0)
+        box1.show()
+
+        box2 = gtk.VBox(False, 10)
+        box2.set_border_width(10)
+
+        box1.pack_start(box2, True, True, 0) # (child, expand, fill, padding)
+        box2.show()
+
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.textview = gtk.TextView(buffer)
+        sw.add(self.textview)
+        sw.show()
+        self.textview.show()
+
+        box2.pack_start(sw, True, True, 0)
+
+        window.show()
+
+
     def close_application(self, widget):
         gtk.main_quit()
 
@@ -88,6 +153,13 @@ class TextEditor:
 
     def do_new(self, callback_action, widget):
         TextEditor()
+
+    def do_bold(self, callback_action, widget):
+        buffer = self.textview.get_buffer()
+        start, end = buffer.get_selection_bounds()
+        text = start.get_slice(end)
+        print text
+
 
     def do_link_variable(self, callback_action, widget):
         BasicTreeViewExample()
@@ -158,59 +230,6 @@ class TextEditor:
         new_window.show_all()
 
 
-
-    def __init__(self):
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        window.connect("destroy", self.close_application)
-        window.set_title("ENTANGLE")
-
-        window.set_size_request(500, 500)
-
-        self.menu_items = (
-            ( "/_File",         None,         None, 0, "<Branch>" ),
-            ( "/File/_New",     "<control>N", self.do_new, 0, None ),
-            ( "/File/_Open",    "<control>O", self.print_hello, 0, None ),
-            ( "/File/_Save",    "<control>S", self.print_hello, 0, None ),
-            ( "/File/Save _As", None,         None, 0, None ),
-            ( "/File/sep1",     None,         None, 0, "<Separator>" ),
-            ( "/File/Quit",     "<control>Q", gtk.main_quit, 0, None ),
-            ( "/_Functions",      None,         None, 0, "<Branch>" ),
-            ( "/Functions/Create Variable", None, self.do_create_variable, 0, None ),
-            ( "/Functions/Link",  None,        self.do_link_variable, 0, None ),
-            ( "/_Help",         None,         None, 0, "<LastBranch>" ),
-            ( "/_Help/About",   None,         None, 0, None ),
-            )
-
-        main_vbox = gtk.VBox(False, 1)
-        main_vbox.set_border_width(1)
-        window.add(main_vbox)
-        main_vbox.show()
-
-        menubar = self.get_main_menu(window)
-
-        main_vbox.pack_start(menubar, False, True, 0)
-        menubar.show()
-
-        box1 = gtk.VBox(False, 20) #expand =False
-        main_vbox.pack_start(box1, True,True,0)
-        box1.show()
-
-        box2 = gtk.VBox(False, 10)
-        box2.set_border_width(10)
-
-        box1.pack_start(box2, True, True, 0) # (child, expand, fill, padding)
-        box2.show()
-
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        textview = gtk.TextView()
-        sw.add(textview)
-        sw.show()
-        textview.show()
-
-        box2.pack_start(sw, True, True, 0)
-
-        window.show()
 
 
 class BasicTreeViewExample:
