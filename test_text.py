@@ -1,90 +1,286 @@
-_author__ = 'jpark3'
+__author__ = 'jpark3'
 
-from Tkinter import *
-import tkFont
-
-class Application(Frame):
-    def __init__(self, master=None):
-        #self.toolbar = Frame()
-        Frame.__init__(self, master)
-        self.grid(sticky=N+S+E+W)
-        self.createWidgets()
-
-        bold_font = tkFont.Font(self.text, self.text.cget("font"))
-        bold_font.configure(weight="bold")
-        self.text.tag_configure("bold", font=bold_font)
-
-    def printText(self):
-        # Prints input text
-        t = str(self.text.get('1.0', 'end'))
-        print t
-        print type(t)
-
-    def saveText(self):
-        # Saves input text in a .txt file
-        fout = open("text_save.txt", "w")
-        try:
-            savedText = str(self.text.get('1.0', 'end'))
-            fout.write(savedText)
-        finally:
-            fout.close()
-
-    def createWidgets(self):
-        # Makes window stretchable
-        top=self.winfo_toplevel()
-        top.rowconfigure(0, weight=1)
-        top.columnconfigure(0, weight=1)
-
-        self.rowconfigure(0, weight=1)
-        self.rowconfigure(1, weight=1)
-        self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=1)
-
-        self.createVariable = Button(self, text='Create variable', command=self.OnCreateVariable)
-        self.createVariable.grid(column=0, row=0, sticky=N+E+S+W)
-
-        # Makes 'Create Bold' button
-        self.bold = Button(self, text='Bold', command=self.OnBold,)
-        self.bold.grid(column=0, row=3, sticky=N+E+S+W)
-
-        # Makes 'Link values' button
-        self.linkValues = Button(self, text='Link values')
-        self.linkValues.grid(column=0, row=1, sticky=N+E+S+W)
-
-        # Makes 'Save' button
-        self.save = Button(self, text='Save', command=self.saveText)
-        self.save.grid(column=0, row=2, sticky=N+E+S+W)
-
-        # Makes scrollbar
-        self.yScroll = Scrollbar(self, orient=VERTICAL)
-        self.yScroll.grid(row=0, rowspan=3, column=2, sticky=N+S)
-
-        # Makes text widget
-        self.text = Text(self, width=100, height=10, yscrollcommand=self.yScroll.set)
-        self.text.grid(column=1, row=0, rowspan=3, sticky=N+E+S+W)
-        self.yScroll["command"] = self.text.yview # scroll vertically
+#Text Editor Using GTK
 
 
-    def OnBold(self):
-        '''Toggle the bold state of the selected text'''
+import pygtk
+pygtk.require('2.0')
+import gtk
+import pango
 
-        # toggle the bold state based on the first character
-        # in the selected range. If bold, unbold it. If not
-        # bold, bold it.
-        current_tags = self.text.tag_names("sel.first")
-        if "bold" in current_tags:
-            # first char is bold, so unbold the range
-            self.text.tag_remove("bold", "sel.first", "sel.last")
+
+
+class Buffer(gtk.TextBuffer):
+    N_COLORS = 16
+    PANGO_SCALE = 1024
+
+    def __init__(self):
+        gtk.TextBuffer.__init__(self)
+        tt = self.get_tag_table()
+        self.refcount = 0
+        self.filename = None
+        self.untitled_serial = -1
+
+
+class TextEditor:
+    def close_application(self, widget):
+        gtk.main_quit()
+
+    def print_hello(self, w, data):
+        print "Hello, World!"
+
+
+    def change_digits(self, widget, spin, spin1):
+        spin1.set_digits(spin.get_value_as_int())
+
+    def get_value(self, widget, data, spin, spin2, label):
+        if data == 1:
+            buf = "%d" % spin.get_value_as_int()
         else:
-            # first char is normal, so bold the whole selection
-            self.text.tag_add("bold", "sel.first", "sel.last") # (tagname, index1, index2)
+            buf = "%0.*f" % (spin2.get_value_as_int(),
+                             spin.get_value())
+        label.set_text(buf)
 
-    def OnCreateVariable(self):
-        win = Toplevel()
-        win.frame()
+    # This is the ItemFactoryEntry structure used to generate new menus.
+    # Item 1: The menu path. The letter after the underscore indicates an
+    #         accelerator key once the menu is open.
+    # Item 2: The accelerator key for the entry
+    # Item 3: The callback.
+    # Item 4: The callback action.  This changes the parameters with
+    #         which the callback is called.  The default is 0.
+    # Item 5: The item type, used to define what kind of an item it is.
+    #       Here are the possible values:
 
-        win.config(bg="grey")
+    #       NULL               -> "<Item>"
+    #       ""                 -> "<Item>"
+    #       "<Title>"          -> create a title item
+    #       "<Item>"           -> create a simple item
+    #       "<CheckItem>"      -> create a check item
+    #       "<ToggleItem>"     -> create a toggle item
+    #       "<RadioItem>"      -> create a radio item
+    #       <path>             -> path of a radio item to link against
+    #       "<Separator>"      -> create a separator
+    #       "<Branch>"         -> create an item to hold sub items (optional)
+    #       "<LastBranch>"     -> create a right justified branch
 
-app = Application()
-app.master.title('Entangle')
-app.mainloop()
+    def get_main_menu(self, window):
+        accel_group = gtk.AccelGroup()
+
+        # This function initializes the item factory.
+        # Param 1: The type of menu - can be MenuBar, Menu,
+        #          or OptionMenu.
+        # Param 2: The path of the menu.
+        # Param 3: A reference to an AccelGroup. The item factory sets up
+        #          the accelerator table while generating menus.
+        item_factory = gtk.ItemFactory(gtk.MenuBar, "<main>", accel_group)
+
+        # This method generates the menu items. Pass to the item factory
+        #  the list of menu items
+        item_factory.create_items(self.menu_items)
+
+        # Attach the new accelerator group to the window.
+        window.add_accel_group(accel_group)
+
+        # need to keep a reference to item_factory to prevent its destruction
+        self.item_factory = item_factory
+        # Finally, return the actual menu bar created by the item factory.
+        return item_factory.get_widget("<main>")
+
+    def do_new(self, callback_action, widget):
+        TextEditor()
+
+    def do_link_variable(self, callback_action, widget):
+        BasicTreeViewExample()
+
+
+
+
+    def do_create_variable(self, callback_action, widget):
+        new_window=gtk.Window(gtk.WINDOW_TOPLEVEL)
+        new_window.set_size_request(230,150)
+        new_window.set_title("Create Variable")
+
+
+        main_vbox = gtk.VBox(False, 5)
+        main_vbox.set_border_width(10)
+        new_window.add(main_vbox)
+
+        frame = gtk.Frame("Parent Variable")
+        main_vbox.pack_start(frame, True, True, 0)
+
+        vbox = gtk.VBox(False, 0)
+        vbox.set_border_width(5)
+        frame.add(vbox)
+
+        hbox = gtk.HBox(False, 0)
+        vbox.pack_start(hbox, True, True, 5)
+
+        vbox2 = gtk.VBox(False, 0)
+        hbox.pack_start(vbox2, True, True, 5)
+
+        label = gtk.Label("Min :")
+        label.set_alignment(0, 0.5)
+        vbox2.pack_start(label, False, True, 0)
+
+        adj = gtk.Adjustment(0.0, 0.0, 1000.0, 1.0, 5.0, 0.0)
+        spinner = gtk.SpinButton(adj, 0, 0)
+        spinner.set_wrap(True)
+        vbox2.pack_start(spinner, False, True, 0)
+
+        vbox2 = gtk.VBox(False, 0)
+        hbox.pack_start(vbox2, True, True, 5)
+
+        label = gtk.Label("Max :")
+        label.set_alignment(0, 0.5)
+        vbox2.pack_start(label, False, True, 0)
+
+        adj = gtk.Adjustment(0.0, 0.0, 1000.0, 1.0, 5.0, 0.0)
+        spinner = gtk.SpinButton(adj, 0, 0)
+        spinner.set_wrap(True)
+        vbox2.pack_start(spinner, False, True, 0)
+
+        vbox2 = gtk.VBox(False, 0)
+        hbox.pack_start(vbox2, True, True, 5)
+
+
+        hbox = gtk.HBox(False, 0)
+        main_vbox.pack_start(hbox, False, True, 0)
+
+        button = gtk.Button("Close")
+        button.connect("clicked", lambda w: gtk.main_quit())
+
+        button1=gtk.Button("OK")
+        button1.connect("clicked", lambda w: gtk.main_quit())
+
+        hbox.pack_start(button1, True, True, 5)
+        hbox.pack_start(button, True, True, 5)
+
+        new_window.show_all()
+
+
+
+    def __init__(self):
+        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.connect("destroy", self.close_application)
+        window.set_title("ENTANGLE")
+
+        window.set_size_request(500, 500)
+
+        self.menu_items = (
+            ( "/_File",         None,         None, 0, "<Branch>" ),
+            ( "/File/_New",     "<control>N", self.do_new, 0, None ),
+            ( "/File/_Open",    "<control>O", self.print_hello, 0, None ),
+            ( "/File/_Save",    "<control>S", self.print_hello, 0, None ),
+            ( "/File/Save _As", None,         None, 0, None ),
+            ( "/File/sep1",     None,         None, 0, "<Separator>" ),
+            ( "/File/Quit",     "<control>Q", gtk.main_quit, 0, None ),
+            ( "/_Functions",      None,         None, 0, "<Branch>" ),
+            ( "/Functions/Create Variable", None, self.do_create_variable, 0, None ),
+            ( "/Functions/Link",  None,        self.do_link_variable, 0, None ),
+            ( "/_Help",         None,         None, 0, "<LastBranch>" ),
+            ( "/_Help/About",   None,         None, 0, None ),
+            )
+
+        main_vbox = gtk.VBox(False, 1)
+        main_vbox.set_border_width(1)
+        window.add(main_vbox)
+        main_vbox.show()
+
+        menubar = self.get_main_menu(window)
+
+        main_vbox.pack_start(menubar, False, True, 0)
+        menubar.show()
+
+        box1 = gtk.VBox(False, 20) #expand =False
+        main_vbox.pack_start(box1, True,True,0)
+        box1.show()
+
+        box2 = gtk.VBox(False, 10)
+        box2.set_border_width(10)
+
+        box1.pack_start(box2, True, True, 0) # (child, expand, fill, padding)
+        box2.show()
+
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        textview = gtk.TextView()
+        sw.add(textview)
+        sw.show()
+        textview.show()
+
+        box2.pack_start(sw, True, True, 0)
+
+        window.show()
+
+
+class BasicTreeViewExample:
+
+    # close the window and quit
+    def delete_event(self, widget, event, data=None):
+        gtk.main_quit()
+        return False
+
+    def __init__(self):
+        # Create a new window
+        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+
+        self.window.set_title("Variable TreeView")
+
+        self.window.set_size_request(200, 200)
+
+        self.window.connect("delete_event", self.delete_event)
+
+        # create a TreeStore with one string column to use as the model
+        self.treestore = gtk.TreeStore(str)
+
+        # we'll add some data now - 4 rows with 3 child rows each
+        for parent in range(4):
+            piter = self.treestore.append(None, ['parent %i' % parent])
+            for child in range(3):
+                self.treestore.append(piter, ['child %i of parent %i' %
+                                              (child, parent)])
+
+        # create the TreeView using treestore
+        self.treeview = gtk.TreeView(self.treestore)
+
+        # create the TreeViewColumn to display the data
+        self.tvcolumn = gtk.TreeViewColumn('Column 0')
+
+        # add tvcolumn to treeview
+        self.treeview.append_column(self.tvcolumn)
+
+        # create a CellRendererText to render the data
+        self.cell = gtk.CellRendererText()
+
+        # add the cell to the tvcolumn and allow it to expand
+        self.tvcolumn.pack_start(self.cell, True)
+
+        # set the cell "text" attribute to column 0 - retrieve text
+        # from that column in treestore
+        self.tvcolumn.add_attribute(self.cell, 'text', 0)
+
+        # make it searchable
+        self.treeview.set_search_column(0)
+
+        # Allow sorting on the column
+        self.tvcolumn.set_sort_column_id(0)
+
+        # Allow drag and drop reordering of rows
+        self.treeview.set_reorderable(True)
+
+        self.window.add(self.treeview)
+
+        self.window.show_all()
+
+
+
+
+def main():
+    gtk.main()
+    return 0
+
+if __name__ == "__main__":
+    TextEditor()
+    main()
+
+
