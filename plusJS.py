@@ -57,9 +57,9 @@ def headerInjector(python2html_output):
     'function setUpTangle () { \n' \
     'var element = document.getElementById("test"); \n' \
     'var tangle = new Tangle(element, { \n' \
-    'initialize: function () { \n' \
-    'this.cookies = 4; \n' \
-    'this.caloriesPerCookie = 50;\n' \
+   # 'initialize: function () { \n' \
+    #'this.cookies = 4; \n' \
+    #'this.caloriesPerCookie = 50;\n' \
     '}, \n' \
     'update: function () { \n' \
     'this.calories = this.cookies * this.caloriesPerCookie; \n' \
