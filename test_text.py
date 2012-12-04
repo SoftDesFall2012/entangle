@@ -1,13 +1,12 @@
 __author__ = 'jpark3'
 
-#Text Editor Using GTK
-
+    #Text Editor Using GTK
 
 import pygtk
 pygtk.require('2.0')
+import sys, os, errno
 import gtk
 import pango
-
 
 
 class Buffer(gtk.TextBuffer):
@@ -30,6 +29,7 @@ class Buffer(gtk.TextBuffer):
 
 
 class TextEditor:
+
     def __init__(self, buffer = None):
         window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         window.connect("destroy", self.close_application)
@@ -46,9 +46,11 @@ class TextEditor:
             ( "/File/sep1",     None,         None, 0, "<Separator>" ),
             ( "/File/Quit",     "<control>Q", gtk.main_quit, 0, None ),
             ( "/_Functions",      None,         None, 0, "<Branch>" ),
-            ( "/Functions/Create Variable", None, self.do_create_variable, 0, None ),
-            ( "/Functions/Link",  None,        self.do_link_variable, 0, None ),
+            ( "/Functions/Create Variable", "<control><shift>N", self.do_create_variable, 0, None ),
+            ( "/Functions/Link",  "<control><shift>L",        self.do_link_variable, 0, None ),
             ( "/Functions/Print Selected",  None,   self.do_bold, 0, None ),
+            ( "/_Run",      None,         None, 0, "<Branch>" ),
+            ( "/Run/Compile", "<control><shift>F10", None, 0, None ),
             ( "/_Help",         None,         None, 0, "<LastBranch>" ),
             ( "/_Help/About",   None,         None, 0, None ),
             )
@@ -290,8 +292,6 @@ class BasicTreeViewExample:
         self.window.add(self.treeview)
 
         self.window.show_all()
-
-
 
 
 def main():
