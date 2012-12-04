@@ -4,6 +4,11 @@ entangle
 Olin Software Design Project Fall 2012
 
 Packages Used:
+PyGTK: http://www.pygtk.org/
+    Windows Package Download: http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/
+    Linux/Unix users should have this package installed with 2.7 by default.
 GTK+: http://www.gtk.org/
-    Windows Package Download: http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/2.24/gtk+-bundle_2.24.10-20120208_win32.zip
-    Linux Pacakage Download: http://www.gtk.org/download/linux.php
+Pango: http://www.pango.org/
+PyCairo: http://www.cairographics.org/pycairo/
+
+Also using tangle.js as provided on www.worrydream.com.

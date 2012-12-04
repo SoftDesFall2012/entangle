@@ -40,84 +40,41 @@ def bodyInjector(python2html_output):
 
 def headerInjector(python2html_output):
 
-    # Using pre-written header for the moment
+    header = open('header.txt').read()
 
- #   header = open('header.txt').read()
+    strpheader = header.rstrip('/script>')
+    strpheader = header.rstrip('<')
 
+    finalheader = strpheader+
 
-    header = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> \n' \
-    '<title>entangle</title> \n' \
-    '<script type="text/javascript" src="Tangle.js"></script> \n' \
-    '<link rel="stylesheet" href="TangleKit/TangleKit.css" type="text/css"> \n' \
-    '<script type="text/javascript" src="TangleKit/mootools.js"></script> \n' \
-    '<script type="text/javascript" src="TangleKit/sprintf.js"></script> \n' \
-    '<script type="text/javascript" src="TangleKit/BVTouchable.js"></script> \n' \
-    '<script type="text/javascript" src="TangleKit/TangleKit.js"></script> \n' \
-    '<script type="text/javascript"> \n' \
-    'function setUpTangle () { \n' \
-    'var element = document.getElementById("test"); \n' \
-    'var tangle = new Tangle(element, { \n' \
-   # 'initialize: function () { \n' \
-    #'this.cookies = 4; \n' \
-    #'this.caloriesPerCookie = 50;\n' \
-    '}, \n' \
-    'update: function () { \n' \
-    'this.calories = this.cookies * this.caloriesPerCookie; \n' \
-    '} \n' \
-    '}); \n' \
-    '} \n' \
-    '</script>'
+    <script type="text/javascript">
 
+    function setUpTangle () {
 
-    return header
+        var element = document.getElementById("example");
 
+    var tangle = new Tangle(element, {
+        initialize: function () {
+        this.cookies = 4;
+    this.caloriesPerCookie = 50;
+    },
+    update: function () {
+        this.calories = this.cookies * this.caloriesPerCookie;
+    }
+    });
+    }
 
-start_tag= '<html>\n\t\t<header>' # start html body
+# Assembly of output
+
+start_tag= '<html>\n\t\t<header>' # Start html body
 end_header = '\n</header>\n'
-end_tag='\n</html>' #end html body
+end_tag='\n</html>' # End html body
 
 output = start_tag + headerInjector(python2html_output) + end_header + bodyInjector(python2html_output) + end_tag
 
-fout=open('outputjs.html','w') #save it in a html format
+fout=open('outputjs.html','w') # Save it in a html format
 fout.write(output)
 fout.close()
 
 print output
 
-
-'''
-
-
-#print python2html_outpututf8.format('<span data-var="cookies" class = "TKAdjustableNumber" data-min="1" data-max = "100">')
-
-#print python2html_outpututf8
-
-
-
-class HTMLParse(HTMLParser):
-    def handle_starttag(self, tag, attrs):
-        print "Start tag:", tag
-    def handle_endtag(self, tag):
-        print "End tag:", tag
-    def handle_data(self, data):
-        print "Data:", data
-
-
-parse  = HTMLParse()
-#parse.feed(python2html_output.read())
-parse.handle_data(python2html_output.read())
-
-
-class jsInjection(filename)
-
-    def tanglekit(imput):
-        body = imput
-        head = "<script type="text/javascript" src="Tangle.js"></script><link rel="stylesheet" href="TangleKit/TangleKit.css" type="text/css">
-        <script type="text/javascript" src="TangleKit/mootools.js"></script>
-        <script type="text/javascript" src="TangleKit/sprintf.js"></script>
-        <script type="text/javascript" src="TangleKit/BVTouchable.js"></script>
-        <script type="text/javascript" src="TangleKit/TangleKit.js"></script>"
-        append = head + body
-        return append
-
-'''
