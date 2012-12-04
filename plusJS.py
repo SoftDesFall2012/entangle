@@ -40,45 +40,21 @@ def bodyInjector(python2html_output):
 
 def headerInjector(python2html_output):
 
-    # Using pre-written header for the moment
+    # Grabs header data from header.txt. Header.txt should not really need to be changed.
 
- #   header = open('header.txt').read()
-
-
-    header = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> \n' \
-    '<title>entangle</title> \n' \
-    '<script type="text/javascript" src="Tangle.js"></script> \n' \
-    '<link rel="stylesheet" href="TangleKit/TangleKit.css" type="text/css"> \n' \
-    '<script type="text/javascript" src="TangleKit/mootools.js"></script> \n' \
-    '<script type="text/javascript" src="TangleKit/sprintf.js"></script> \n' \
-    '<script type="text/javascript" src="TangleKit/BVTouchable.js"></script> \n' \
-    '<script type="text/javascript" src="TangleKit/TangleKit.js"></script> \n' \
-    '<script type="text/javascript"> \n' \
-    'function setUpTangle () { \n' \
-    'var element = document.getElementById("test"); \n' \
-    'var tangle = new Tangle(element, { \n' \
-   # 'initialize: function () { \n' \
-    #'this.cookies = 4; \n' \
-    #'this.caloriesPerCookie = 50;\n' \
-    '}, \n' \
-    'update: function () { \n' \
-    'this.calories = this.cookies * this.caloriesPerCookie; \n' \
-    '} \n' \
-    '}); \n' \
-    '} \n' \
-    '</script>'
-
+    header = open('header.txt').read()
 
     return header
 
+# Assembly of output
 
-start_tag= '<html>\n\t\t<header>' # start html body
+start_tag= '<html>\n\t\t<header>' # Start html body
 end_header = '\n</header>\n'
-end_tag='\n</html>' #end html body
+end_tag='\n</html>' # End html body
 
 output = start_tag + headerInjector(python2html_output) + end_header + bodyInjector(python2html_output) + end_tag
 
-fout=open('outputjs.html','w') #save it in a html format
+fout=open('outputjs.html','w') # Save it in a html format
 fout.write(output)
 fout.close()
 
@@ -119,5 +95,4 @@ class jsInjection(filename)
         <script type="text/javascript" src="TangleKit/TangleKit.js"></script>"
         append = head + body
         return append
-
 '''
