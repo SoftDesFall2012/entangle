@@ -40,11 +40,29 @@ def bodyInjector(python2html_output):
 
 def headerInjector(python2html_output):
 
-    # Grabs header data from header.txt. Header.txt should not really need to be changed.
-
     header = open('header.txt').read()
 
-    return header
+    strpheader = header.rstrip('/script>')
+    strpheader = header.rstrip('<')
+
+    finalheader = strpheader+
+
+    <script type="text/javascript">
+
+    function setUpTangle () {
+
+        var element = document.getElementById("example");
+
+    var tangle = new Tangle(element, {
+        initialize: function () {
+        this.cookies = 4;
+    this.caloriesPerCookie = 50;
+    },
+    update: function () {
+        this.calories = this.cookies * this.caloriesPerCookie;
+    }
+    });
+    }
 
 # Assembly of output
 
