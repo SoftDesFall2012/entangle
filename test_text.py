@@ -7,7 +7,7 @@ pygtk.require('2.0')
 import sys, os, errno
 import gtk
 import pango
-
+t=[]
 
 class Buffer(gtk.TextBuffer):
     def __init__(self):
@@ -20,10 +20,11 @@ class Buffer(gtk.TextBuffer):
         # Our Bold tag.
         self.tag_bold = self.create_tag("bold", weight=pango.WEIGHT_BOLD)
 
-    def save_parent(self, val1,val2):
-
-        self.parent.append(val1,val2)
-
+    def save_parent(self, parent_list):
+        global t
+        t.append(parent_list)
+        print t
+        return t
 
 class TextEditor:
 
@@ -38,14 +39,13 @@ class TextEditor:
             ( "/_File",         None,         None, 0, "<Branch>" ),
             ( "/File/_New",     "<control>N", self.do_new, 0, None ),
             ( "/File/_Open",    "<control>O", None, 0, None ),
-            ( "/File/_Save",    "<control>S", self.print_hello, 0, None ),
+            ( "/File/_Save",    "<control>S", None, 0, None ),
             ( "/File/Save _As", None,         None, 0, None ),
             ( "/File/sep1",     None,         None, 0, "<Separator>" ),
             ( "/File/Quit",     "<control>Q", gtk.main_quit, 0, None ),
             ( "/_Functions",      None,         None, 0, "<Branch>" ),
             ( "/Functions/Create Variable", "<control><shift>N", self.do_create_variable, 0, None ),
             ( "/Functions/Link",  "<control><shift>L", self.do_link_variable, 0, None ),
-            ( "/Functions/Print Selected",  None,   self.do_bold, 0, None ),
             ( "/_Run",      None,         None, 0, "<Branch>" ),
             ( "/Run/Compile", "<control><shift>F10", None, 0, None ),
             ( "/_Help",         None,         None, 0, "<LastBranch>" ),
@@ -87,10 +87,6 @@ class TextEditor:
 
     def close_application(self, widget):
         gtk.main_quit()
-
-    def print_hello(self, w, data):
-        print "Hello, World!"
-
 
     def change_digits(self, widget, spin, spin1):
         spin1.set_digits(spin.get_value_as_int())
@@ -154,41 +150,31 @@ class TextEditor:
     def do_link_variable(self, callback_action, widget):
         BasicTreeViewExample()
 
+        new_window=gtk.Window(gtk.WINDOW_TOPLEVEL)
+        new_window.set_size_request(300,300)
+        new_window.set_title("Link Variable")
 
-    def get_value(self, widget, data, spin, spin2, label):
-        if data == 1:
-            buf = "%d" % spin.get_value_as_int()
-
-        else:
-            buf = "%0.*f" % (spin2.get_value_as_int(),
-                             spin.get_value())
-        label.set_text(buf)
-
-    def get_value2(self, widget, data, spin, spin2, label):
-        if data == 1:
-            buf2 = "%d" % spin2.get_value_as_int()
-
-        else:
-            buf = "%0.*f" % (spin2.get_value_as_int(),
-                             spin.get_value())
-        label.set_text(buf2)
-
-    def save_to_buffer(self, widget, parent, spin, spin2):
-        t=()
-        spin_value1=spin.get_value_as_int()
-        spin_value2=spin2.get_value_as_int()
-
+    def save_to_buffer(self, widget, parent, spin, spin2, start, end):
+        t=[]
+        buffer = self.textview.get_buffer()
+        min=spin.get_value_as_int()
+        max=spin2.get_value_as_int()
+        t.append(parent)
+        t.append(min)
+        t.append(max)
+        t.append(start)
+        t.append(end)
+        buffer.save_parent(t)
+        #t=[parent, min, max, start, end]
 
     def do_create_variable(self, callback_action, widget):
         new_window=gtk.Window(gtk.WINDOW_TOPLEVEL)
         new_window.set_size_request(230,150)
         new_window.set_title("Create Variable")
 
-
         buffer = self.textview.get_buffer()
         start, end = buffer.get_selection_bounds()
         text = start.get_slice(end)
-        #print text
 
         main_vbox = gtk.VBox(False, 5)
         main_vbox.set_border_width(10)
@@ -229,57 +215,20 @@ class TextEditor:
 
         vbox2.pack_start(spinner2, False, True, 0)
 
-        '''
-        vbox2 = gtk.VBox(False, 0)
-        hbox.pack_start(vbox2, True, True, 5)
-
-        hbox = gtk.HBox(False, 0)
-        main_vbox.pack_start(hbox, False, True, 0)
-        '''
-
-        '''
-        val_label = gtk.Label("")
-
-        button = gtk.Button("Close")
-        button.connect("clicked", lambda w: gtk.main_quit())
-
-        button1=gtk.Button("OK")
-        button.connect("clicked", self.get_value, 1, spinner1, spinner2,
-            val_label)
-
-
-        hbox.pack_start(button1, True, True, 5)
-        hbox.pack_start(button, True, True, 5)
-
-
-        vbox.pack_start(val_label, True, True, 0)
-        val_label.set_text("0")
-        '''
-
-
         val_label = gtk.Label("")
         val_label2= gtk.Label("")
         hbox = gtk.HBox(False, 0)
         main_vbox.pack_start(hbox, False, True, 0)
 
         button = gtk.Button("OK")
-        button.connect("clicked", self.get_value, 1, spinner1, spinner2,
-            val_label)
-        button.connect("clicked", self.get_value2, 1, spinner1, spinner2,
-            val_label2)
 
-
+        button.connect("clicked", self.save_to_buffer, text, spinner1, spinner2,
+            start, end )
 
         hbox.pack_start(button, True, True, 5)
 
-        vbox.pack_start(val_label, True, True, 0)
-        val_label.set_text("0")
-
-        vbox.pack_start(val_label2, False, True, 0)
-        val_label2.set_text("0")
-
         button = gtk.Button("Close")
-        button.connect("clicked", lambda w: gtk.main_quit())
+        button.connect("clicked", self.close_application)
         hbox.pack_start(button, True, True, 5)
 
         new_window.show_all()
@@ -304,9 +253,10 @@ class BasicTreeViewExample:
         # create a TreeStore with one string column to use as the model
         self.treestore = gtk.TreeStore(str)
 
+        global t
         # we'll add some data now - 4 rows with 3 child rows each
-        for parent in range(4):
-            piter = self.treestore.append(None, ['parent %i' % parent])
+        for parent in t:
+            piter = self.treestore.append(None, ['parent %s' % t[0]])
             for child in range(3):
                 self.treestore.append(piter, ['child %i of parent %i' %
                                               (child, parent)])
@@ -315,7 +265,7 @@ class BasicTreeViewExample:
         self.treeview = gtk.TreeView(self.treestore)
 
         # create the TreeViewColumn to display the data
-        self.tvcolumn = gtk.TreeViewColumn('Column 0')
+        self.tvcolumn = gtk.TreeViewColumn('History')
 
         # add tvcolumn to treeview
         self.treeview.append_column(self.tvcolumn)
