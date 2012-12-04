@@ -1,6 +1,6 @@
 __author__ = 'jpark3'
 
-    #Text Editor Using GTK
+#Text Editor Using GTK
 
 import pygtk
 pygtk.require('2.0')
@@ -14,18 +14,15 @@ class Buffer(gtk.TextBuffer):
         gtk.TextBuffer.__init__(self)
         tt = self.get_tag_table()
 
+        self.parent=[]
         # A list to hold our active tags
         self.tags_on = []
         # Our Bold tag.
         self.tag_bold = self.create_tag("bold", weight=pango.WEIGHT_BOLD)
 
-    def make_bold(self):
-        ''' add "bold" to our active tags list '''
-        if 'bold' in self.tags_on:
-            del self.tags_on[self.tags_on.index('bold')]
-        else:
-            self.tags_on.append('bold')
+    def save_parent(self, val1,val2):
 
+        self.parent.append(val1,val2)
 
 
 class TextEditor:
@@ -47,7 +44,7 @@ class TextEditor:
             ( "/File/Quit",     "<control>Q", gtk.main_quit, 0, None ),
             ( "/_Functions",      None,         None, 0, "<Branch>" ),
             ( "/Functions/Create Variable", "<control><shift>N", self.do_create_variable, 0, None ),
-            ( "/Functions/Link",  "<control><shift>L",        self.do_link_variable, 0, None ),
+            ( "/Functions/Link",  "<control><shift>L", self.do_link_variable, 0, None ),
             ( "/Functions/Print Selected",  None,   self.do_bold, 0, None ),
             ( "/_Run",      None,         None, 0, "<Branch>" ),
             ( "/Run/Compile", "<control><shift>F10", None, 0, None ),
@@ -56,7 +53,6 @@ class TextEditor:
             )
 
         buffer = Buffer()
-
 
         main_vbox = gtk.VBox(False, 1)
         main_vbox.set_border_width(1)
@@ -86,7 +82,6 @@ class TextEditor:
         self.textview.show()
 
         box2.pack_start(sw, True, True, 0)
-
         window.show()
 
 
@@ -100,13 +95,6 @@ class TextEditor:
     def change_digits(self, widget, spin, spin1):
         spin1.set_digits(spin.get_value_as_int())
 
-    def get_value(self, widget, data, spin, spin2, label):
-        if data == 1:
-            buf = "%d" % spin.get_value_as_int()
-        else:
-            buf = "%0.*f" % (spin2.get_value_as_int(),
-                             spin.get_value())
-        label.set_text(buf)
 
     # This is the ItemFactoryEntry structure used to generate new menus.
     # Item 1: The menu path. The letter after the underscore indicates an
@@ -167,6 +155,28 @@ class TextEditor:
         BasicTreeViewExample()
 
 
+    def get_value(self, widget, data, spin, spin2, label):
+        if data == 1:
+            buf = "%d" % spin.get_value_as_int()
+
+        else:
+            buf = "%0.*f" % (spin2.get_value_as_int(),
+                             spin.get_value())
+        label.set_text(buf)
+
+    def get_value2(self, widget, data, spin, spin2, label):
+        if data == 1:
+            buf2 = "%d" % spin2.get_value_as_int()
+
+        else:
+            buf = "%0.*f" % (spin2.get_value_as_int(),
+                             spin.get_value())
+        label.set_text(buf2)
+
+    def save_to_buffer(self, widget, parent, spin, spin2):
+        t=()
+        spin_value1=spin.get_value_as_int()
+        spin_value2=spin2.get_value_as_int()
 
 
     def do_create_variable(self, callback_action, widget):
@@ -175,11 +185,16 @@ class TextEditor:
         new_window.set_title("Create Variable")
 
 
+        buffer = self.textview.get_buffer()
+        start, end = buffer.get_selection_bounds()
+        text = start.get_slice(end)
+        #print text
+
         main_vbox = gtk.VBox(False, 5)
         main_vbox.set_border_width(10)
         new_window.add(main_vbox)
 
-        frame = gtk.Frame("Parent Variable")
+        frame = gtk.Frame("%s" % text)
         main_vbox.pack_start(frame, True, True, 0)
 
         vbox = gtk.VBox(False, 0)
@@ -197,9 +212,9 @@ class TextEditor:
         vbox2.pack_start(label, False, True, 0)
 
         adj = gtk.Adjustment(0.0, 0.0, 1000.0, 1.0, 5.0, 0.0)
-        spinner = gtk.SpinButton(adj, 0, 0)
-        spinner.set_wrap(True)
-        vbox2.pack_start(spinner, False, True, 0)
+        spinner1 = gtk.SpinButton(adj, 0, 0)
+        spinner1.set_wrap(True)
+        vbox2.pack_start(spinner1, False, True, 0)
 
         vbox2 = gtk.VBox(False, 0)
         hbox.pack_start(vbox2, True, True, 5)
@@ -209,30 +224,65 @@ class TextEditor:
         vbox2.pack_start(label, False, True, 0)
 
         adj = gtk.Adjustment(0.0, 0.0, 1000.0, 1.0, 5.0, 0.0)
-        spinner = gtk.SpinButton(adj, 0, 0)
-        spinner.set_wrap(True)
-        vbox2.pack_start(spinner, False, True, 0)
+        spinner2 = gtk.SpinButton(adj, 0, 0)
+        spinner2.set_wrap(True)
 
+        vbox2.pack_start(spinner2, False, True, 0)
+
+        '''
         vbox2 = gtk.VBox(False, 0)
         hbox.pack_start(vbox2, True, True, 5)
 
-
         hbox = gtk.HBox(False, 0)
         main_vbox.pack_start(hbox, False, True, 0)
+        '''
+
+        '''
+        val_label = gtk.Label("")
 
         button = gtk.Button("Close")
         button.connect("clicked", lambda w: gtk.main_quit())
 
         button1=gtk.Button("OK")
-        button1.connect("clicked", lambda w: gtk.main_quit())
+        button.connect("clicked", self.get_value, 1, spinner1, spinner2,
+            val_label)
+
 
         hbox.pack_start(button1, True, True, 5)
         hbox.pack_start(button, True, True, 5)
 
+
+        vbox.pack_start(val_label, True, True, 0)
+        val_label.set_text("0")
+        '''
+
+
+        val_label = gtk.Label("")
+        val_label2= gtk.Label("")
+        hbox = gtk.HBox(False, 0)
+        main_vbox.pack_start(hbox, False, True, 0)
+
+        button = gtk.Button("OK")
+        button.connect("clicked", self.get_value, 1, spinner1, spinner2,
+            val_label)
+        button.connect("clicked", self.get_value2, 1, spinner1, spinner2,
+            val_label2)
+
+
+
+        hbox.pack_start(button, True, True, 5)
+
+        vbox.pack_start(val_label, True, True, 0)
+        val_label.set_text("0")
+
+        vbox.pack_start(val_label2, False, True, 0)
+        val_label2.set_text("0")
+
+        button = gtk.Button("Close")
+        button.connect("clicked", lambda w: gtk.main_quit())
+        hbox.pack_start(button, True, True, 5)
+
         new_window.show_all()
-
-
-
 
 class BasicTreeViewExample:
 
