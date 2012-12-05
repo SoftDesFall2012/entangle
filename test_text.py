@@ -1,13 +1,26 @@
 __author__ = 'jpark3'
 
-#Text Editor Using GTK
+#-------Text Editor Using GTK------------
 
 import pygtk
 pygtk.require('2.0')
 import sys, os, errno
 import gtk
 import pango
-t=[]
+
+#   -----define global values-----------
+t=[] # create variable lists
+t_child=[]
+linked_parent=[]
+sign=[] #sign for selecting functions
+
+
+def make_menu_item(name, callback, data=None):
+    item = gtk.MenuItem(name)
+    item.connect("activate", callback, data)
+    item.show()
+    return item
+
 
 class Buffer(gtk.TextBuffer):
     def __init__(self):
@@ -25,6 +38,11 @@ class Buffer(gtk.TextBuffer):
         t.append(parent_list)
         print t
         return t
+    def save_child(self, child_list):
+        global t_child
+        t_child.append(child_list)
+        print t_child
+        return t_child
 
 class TextEditor:
 
@@ -88,10 +106,6 @@ class TextEditor:
     def close_application(self, widget):
         gtk.main_quit()
 
-    def change_digits(self, widget, spin, spin1):
-        spin1.set_digits(spin.get_value_as_int())
-
-
     # This is the ItemFactoryEntry structure used to generate new menus.
     # Item 1: The menu path. The letter after the underscore indicates an
     #         accelerator key once the menu is open.
@@ -140,19 +154,138 @@ class TextEditor:
     def do_new(self, callback_action, widget):
         TextEditor()
 
-    def do_bold(self, callback_action, widget):
-        buffer = self.textview.get_buffer()
-        start, end = buffer.get_selection_bounds()
-        text = start.get_slice(end)
-        print text
+    def callback(self, widget, data=None):
+        global linked_parent
+
+        if widget.get_active():
+            if data not in linked_parent:
+                linked_parent.append(data)
+
+        else:
+            if data in linked_parent:
+                linked_parent.remove(data)
+
+
+    def cb_pos_menu_select(self, item, val):
+        # Set the value position on both scale widgets
+        global sign
+        del sign[0]
+        sign.append(val)
 
 
     def do_link_variable(self, callback_action, widget):
-        BasicTreeViewExample()
+        global linked_parent
+        global sign
+        #refreshing global memory
+        linked_parent=[]
+        sign=[]
+        sign.append('+')
+        buffer = self.textview.get_buffer()
+        start, end = buffer.get_selection_bounds()
+        text = start.get_slice(end)
 
-        new_window=gtk.Window(gtk.WINDOW_TOPLEVEL)
-        new_window.set_size_request(300,300)
-        new_window.set_title("Link Variable")
+        #----Open up Tree View History-----
+        TreeView()
+
+        # -----Create GUI for Link Variable-----
+
+        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        # Set the window title
+        self.window.set_title("Link Variable - Entangle")
+        # Set a handler for delete_event that immediately
+        # exits GTK.
+        self.window.connect("delete_event", self.close_application)
+        # Sets the border width of the window.
+        self.window.set_size_request(200,400)
+        # Create a vertical box
+        vbox = gtk.VBox(True, 2)
+        # Put the vbox in the main window
+        self.window.add(vbox)
+        frame = gtk.Frame("Parent Variables")
+        frame.set_size_request(100,200)
+        vbox.pack_start(frame, False, False, 20)
+
+        vbox_sub = gtk.VBox(False, 0)
+        vbox_sub.set_size_request(100,200)
+        frame.add(vbox_sub)
+
+        label = gtk.Label("Select One Variable to Link")
+        vbox_sub.pack_start(label, False, False, 10)
+        label.show()
+
+        global t
+        for list in t:
+            # Create button
+            button = gtk.CheckButton("%s" %list[0])
+
+            # When the button is toggled, we call the "callback" method
+            # with a pointer to "button" as its argument
+            button.connect("toggled", self.callback, "%s" %list[0])
+            # Insert button
+            vbox_sub.pack_start(button, False, False, 0)
+            button.show()
+
+        # --------- Create Option Menu ------------
+        frame = gtk.Frame("Functions")
+        frame.set_size_request(100,100)
+        vbox.pack_start(frame, True, True, 20)
+
+        vbox_sub = gtk.VBox(False, 0)
+        vbox_sub.set_size_request(50,100)
+        frame.add(vbox_sub)
+
+        label = gtk.Label("Choose  a function")
+        vbox_sub.pack_start(label, False, False, 10)
+        label.show()
+
+        opt = gtk.OptionMenu()
+        menu = gtk.Menu()
+
+        item = make_menu_item ("ADD (x+y)", self.cb_pos_menu_select, '+')
+        menu.append(item)
+
+        item = make_menu_item ("SUBTRACT (x-y)", self.cb_pos_menu_select,'-')
+        menu.append(item)
+
+        item = make_menu_item ("MULTIPLY (x*y)", self.cb_pos_menu_select, '*')
+        menu.append(item)
+
+        item = make_menu_item ("DIVIDE (x/y) ", self.cb_pos_menu_select, '/')
+        menu.append(item)
+
+        opt.set_menu(menu)
+        vbox_sub.pack_start(opt, False, False, 0)
+        opt.show()
+
+        label = gtk.Label("Insert Y Value")
+        vbox_sub.pack_start(label, False, False, 10)
+
+        adj = gtk.Adjustment(0.0, 0.0, 1000.0, 1.0, 5.0, 0.0)
+        spinner1 = gtk.SpinButton(adj, 0, 0)
+        spinner1.set_wrap(True)
+        vbox_sub.pack_start(spinner1, False, False, 0)
+
+        buttonOK=gtk.Button("OK")
+        buttonOK.connect("clicked", self.save_to_buffer_link, text, linked_parent, sign, spinner1, start, end)
+        #buttonOK.connect("clicked", self.destroy())
+
+        vbox_sub.pack_start(buttonOK, False, False, 20)
+
+        self.window.show_all()
+
+    def save_to_buffer_link(self,widget, child, parent,funct, spin, start, end):
+        link_data=[]
+        buffer = self.textview.get_buffer()
+        y_val=spin.get_value_as_int()
+
+        link_data.append(child)
+        for i in parent:
+            link_data.append(i)
+        link_data.append(funct[0])
+        link_data.append(y_val)
+        link_data.append(start)
+        link_data.append(end)
+        buffer.save_child(link_data)
 
     def save_to_buffer(self, widget, parent, spin, spin2, start, end):
         t=[]
@@ -168,6 +301,7 @@ class TextEditor:
         #t=[parent, min, max, start, end]
 
     def do_create_variable(self, callback_action, widget):
+
         new_window=gtk.Window(gtk.WINDOW_TOPLEVEL)
         new_window.set_size_request(230,150)
         new_window.set_title("Create Variable")
@@ -225,6 +359,7 @@ class TextEditor:
         button.connect("clicked", self.save_to_buffer, text, spinner1, spinner2,
             start, end )
 
+
         hbox.pack_start(button, True, True, 5)
 
         button = gtk.Button("Close")
@@ -233,7 +368,8 @@ class TextEditor:
 
         new_window.show_all()
 
-class BasicTreeViewExample:
+# View Histror for Parent & Child Variable
+class TreeView:
 
     # close the window and quit
     def delete_event(self, widget, event, data=None):
@@ -255,11 +391,13 @@ class BasicTreeViewExample:
 
         global t
         # we'll add some data now - 4 rows with 3 child rows each
+
         for parent in t:
-            piter = self.treestore.append(None, ['parent %s' % t[0]])
+            piter = self.treestore.append(None, ['parent variable : %s' % parent[0]])
+
             for child in range(3):
-                self.treestore.append(piter, ['child %i of parent %i' %
-                                              (child, parent)])
+                self.treestore.append(piter, ['child %i of parent vairable : %s' %
+                                              (child, parent[0])])
 
         # create the TreeView using treestore
         self.treeview = gtk.TreeView(self.treestore)
