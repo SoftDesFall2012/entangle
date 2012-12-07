@@ -44,6 +44,20 @@ class Buffer(gtk.TextBuffer):
         print t_child
         return t_child
 
+    def do_save_buffer(self):
+        fout = open("text_save.txt", "w")
+        global t
+
+        try:
+            startiter = self.get_start_iter()
+            enditer = self.get_end_iter()
+            savedText = str(self.get_text(startiter, enditer))
+            savedText = savedText + '\n' + str(t) + '\n'+ str(t_child)
+            fout.write(savedText)
+        finally:
+            fout.close()
+
+
 class TextEditor:
 
     def __init__(self, buffer = None):
@@ -57,7 +71,7 @@ class TextEditor:
             ( "/_File",         None,         None, 0, "<Branch>" ),
             ( "/File/_New",     "<control>N", self.do_new, 0, None ),
             ( "/File/_Open",    "<control>O", None, 0, None ),
-            ( "/File/_Save",    "<control>S", None, 0, None ),
+            ( "/File/_Save",    "<control>S", self.do_save, 0, None ),
             ( "/File/Save _As", None,         None, 0, None ),
             ( "/File/sep1",     None,         None, 0, "<Separator>" ),
             ( "/File/Quit",     "<control>Q", gtk.main_quit, 0, None ),
@@ -101,6 +115,10 @@ class TextEditor:
 
         box2.pack_start(sw, True, True, 0)
         window.show()
+
+    def do_save(self,callback_action, widget):
+        buffer = self.textview.get_buffer()
+        buffer.do_save_buffer()
 
 
     def close_application(self, widget):
@@ -216,11 +234,11 @@ class TextEditor:
         global t
         for list in t:
             # Create button
-            button = gtk.CheckButton("%s" %list[0])
+            button = gtk.CheckButton("%s" %list[1])
 
             # When the button is toggled, we call the "callback" method
             # with a pointer to "button" as its argument
-            button.connect("toggled", self.callback, "%s" %list[0])
+            button.connect("toggled", self.callback, "%s" %list[1])
             # Insert button
             vbox_sub.pack_start(button, False, False, 0)
             button.show()
@@ -263,7 +281,7 @@ class TextEditor:
         adj = gtk.Adjustment(0.0, 0.0, 1000.0, 1.0, 5.0, 0.0)
         spinner1 = gtk.SpinButton(adj, 0, 0)
         spinner1.set_wrap(True)
-        vbox_sub.pack_start(spinner1, False, False, 0)
+        vbox_sub.pack_start(spinner1, False, True, 0)
 
         buttonOK=gtk.Button("OK")
         buttonOK.connect("clicked", self.save_to_buffer_link, text, linked_parent, sign, spinner1, start, end)
@@ -277,10 +295,11 @@ class TextEditor:
         link_data=[]
         buffer = self.textview.get_buffer()
         y_val=spin.get_value_as_int()
-
+        link_data.append('lv')
         link_data.append(child)
         for i in parent:
             link_data.append(i)
+
         link_data.append(funct[0])
         link_data.append(y_val)
         link_data.append(start)
@@ -292,6 +311,7 @@ class TextEditor:
         buffer = self.textview.get_buffer()
         min=spin.get_value_as_int()
         max=spin2.get_value_as_int()
+        t.append('cv')
         t.append(parent)
         t.append(min)
         t.append(max)
@@ -393,11 +413,11 @@ class TreeView:
         # we'll add some data now - 4 rows with 3 child rows each
 
         for parent in t:
-            piter = self.treestore.append(None, ['parent variable : %s' % parent[0]])
+            piter = self.treestore.append(None, ['parent variable : %s' % parent[1]])
 
             for child in range(3):
                 self.treestore.append(piter, ['child %i of parent vairable : %s' %
-                                              (child, parent[0])])
+                                              (child, parent[1])])
 
         # create the TreeView using treestore
         self.treeview = gtk.TreeView(self.treestore)
