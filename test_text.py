@@ -54,6 +54,7 @@ class Buffer(gtk.TextBuffer):
             savedText = str(self.get_text(startiter, enditer))
             savedText = savedText + '\n' + str(t) + '\n'+ str(t_child)
             fout.write(savedText)
+
         finally:
             fout.close()
 
@@ -69,7 +70,7 @@ class TextEditor:
         self.window.connect("destroy", self.close_application)
         self.window.set_title("Entangle")
 
-        self.window.set_size_request(500, 500)
+        self.window.set_size_request(600, 700)
 
         self.menu_items = (
             ( "/_File",         None,         None, 0, "<Branch>" ),
@@ -110,18 +111,49 @@ class TextEditor:
 
         # box for button toolbar
         box3 = gtk.VBox(False, 10)
+
+        frame0=gtk.Frame("Font")
+        box3.pack_start(frame0,False,False,20)
+        frame0.show()
+        #Boolean=1
+        fontbutton=gtk.FontButton()
+        vbox = gtk.VBox(False, 5)
+        frame0.add(vbox)
+
+        texttagtable = gtk.TextTagTable()
+        buffer = gtk.TextBuffer(texttagtable)
+
+        button_bold = gtk.Button("Bold", gtk.STOCK_BOLD)
+        button_italic = gtk.Button("Italic", gtk.STOCK_ITALIC)
+        button_underline = gtk.Button("Underline", gtk.STOCK_UNDERLINE)
+
+        self.texttag_bold = gtk.TextTag("bold")
+        self.texttag_bold.set_property("weight", pango.WEIGHT_BOLD)
+        texttagtable.add(self.texttag_bold)
+        self.texttag_italic = gtk.TextTag("italic")
+        self.texttag_italic.set_property("style", pango.STYLE_ITALIC)
+        texttagtable.add(self.texttag_italic)
+        self.texttag_underline = gtk.TextTag("underline")
+        self.texttag_underline.set_property("underline", pango.UNDERLINE_SINGLE)
+        texttagtable.add(self.texttag_underline)
+
+        vbox.pack_start(fontbutton)
+        vbox.pack_start(button_bold)
+        vbox.pack_start(button_italic)
+        vbox.pack_start(button_underline)
+
+        #fontbutton.show()
+
+        button_bold.connect("clicked", self.bold_text)
+        button_italic.connect("clicked", self.italic_text)
+        button_underline.connect("clicked", self.underline_text)
+
+        frame0.show_all()
+
         #box3.set_size_request(100,300)
         frame1 = gtk.Frame("Tools")
         box3.pack_start(frame1, False, False, 20)
         frame1.show()
-
-        #Create Update button
-        '''
-        self.button_update = gtk.Button('Update')
-        self.button_update.connect("clicked", self.add_tree)
-        box3.pack_start(self.button_update, False, False, 0)
-        self.button_update.show()
-        '''
 
         box1.pack_start(box3, False, True, 0)
         box3.show()
@@ -150,35 +182,59 @@ class TextEditor:
         sw = gtk.ScrolledWindow()
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self.textview = gtk.TextView(buffer)
+        self.textview.set_wrap_mode(gtk.WRAP_WORD)
+
         sw.add(self.textview)
         sw.show()
         self.textview.show()
 
-        box2.pack_start(sw, True, True, 0)
+        box2.pack_start(sw, True, True, 20)
 
         # connect delete_event signal to main window
         self.window.connect("delete_event", self.delete_event)
 
         # set window border
-        self.window.set_border_width(10)
+        self.window.set_border_width(5)
+
+
 
         # insert Create Variable button
         self.button1 = gtk.Button('Create Variable')
-        self.button1.connect("clicked", self.do_create_variable)
+        self.button1.connect("clicked", self.do_create_variable, None)
         toolbox.pack_start(self.button1, True, True, 0)
         self.button1.show()
 
         # insert Link Values button
         self.button2 = gtk.Button('Link Values')
-        self.button2.connect("clicked", self.do_link_variable)
+        self.button2.connect("clicked", self.do_link_variable, None)
         toolbox.pack_start(self.button2, True, True, 0)
         self.button2.show()
 
         box1.show()
         self.window.show()
 
-    def do_save(self,callback_action, widget):
+
+    def bold_text(self, widget):
         buffer = self.textview.get_buffer()
+        if buffer.get_selection_bounds() != ():
+            start, end = buffer.get_selection_bounds()
+            buffer.apply_tag(self.texttag_bold, start, end)
+
+    def italic_text(self, widget):
+        buffer = self.textview.get_buffer()
+        if buffer.get_selection_bounds() != ():
+            start, end = buffer.get_selection_bounds()
+            buffer.apply_tag(self.texttag_italic, start, end)
+
+    def underline_text(self, widget):
+        buffer = self.textview.get_buffer()
+        if buffer.get_selection_bounds() != ():
+            start, end = buffer.get_selection_bounds()
+            buffer.apply_tag(self.texttag_underline, start, end)
+
+
+    def do_save(self,callback_action, widget):
+        buffer = Buffer()
         buffer.do_save_buffer()
 
     def add_tree(self,widget):
@@ -322,7 +378,7 @@ class TextEditor:
         # exits GTK.
         self.window.connect("delete_event", self.close_application)
         # Sets the border width of the window.
-        self.window.set_size_request(200,400)
+        self.window.set_size_request(200,500)
         # Create a vertical box
         vbox = gtk.VBox(True, 2)
         # Put the vbox in the main window
@@ -405,7 +461,7 @@ class TextEditor:
 
     def save_to_buffer_link(self,widget, child, parent,funct, spin, start, end):
         link_data=[]
-        buffer = self.textview.get_buffer()
+        buffer=Buffer()
         y_val=spin.get_value_as_int()
         link_data.append('lv')
         link_data.append(child)
@@ -420,7 +476,7 @@ class TextEditor:
 
     def save_to_buffer(self, widget, parent, spin, spin2, start, end):
         t=[]
-        buffer = self.textview.get_buffer()
+        buffer = Buffer()
         min=spin.get_value_as_int()
         max=spin2.get_value_as_int()
         t.append('cv')
