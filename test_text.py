@@ -13,7 +13,7 @@ t=[] # create variable lists
 t_child=[]
 linked_parent=[]
 sign=[] #sign for selecting functions
-
+box3 = gtk.VBox(False, 10)
 
 def make_menu_item(name, callback, data=None):
     item = gtk.MenuItem(name)
@@ -106,16 +106,22 @@ class TextEditor:
         main_vbox.pack_start(box1, True,True,0)
         box1.show()
 
+        global box3
+
         # box for button toolbar
         box3 = gtk.VBox(False, 10)
-
+        #box3.set_size_request(100,300)
         frame1 = gtk.Frame("Tools")
         box3.pack_start(frame1, False, False, 20)
         frame1.show()
 
-        frame2 = gtk.Frame("History")
-        box3.pack_start(frame2, False, False, 20)
-        frame2.show()
+        #Create Update button
+        '''
+        self.button_update = gtk.Button('Update')
+        self.button_update.connect("clicked", self.add_tree)
+        box3.pack_start(self.button_update, False, False, 0)
+        self.button_update.show()
+        '''
 
         box1.pack_start(box3, False, True, 0)
         box3.show()
@@ -129,9 +135,10 @@ class TextEditor:
         toolbox.show()
 
         # create history
-        history = gtk.TextView() # something to display history?
-        frame2.add(history)
-        history.show()
+        #history = gtk.TextView() # something to display history?
+
+
+
 
         # box for text input
         box2 = gtk.VBox(False, 10)
@@ -173,6 +180,57 @@ class TextEditor:
     def do_save(self,callback_action, widget):
         buffer = self.textview.get_buffer()
         buffer.do_save_buffer()
+
+    def add_tree(self,widget):
+
+        # create a TreeStore with one string column to use as the model
+        self.treestore = gtk.TreeStore(str)
+
+        global t
+
+        for parent in t:
+            piter = self.treestore.append(None, ['parent variable : %s' % parent[1]])
+            for child in t_child:
+                if parent[1] == child[2]:
+                    self.treestore.append(piter, ['%s' % child[1]])
+
+        # create the TreeView using treestore
+        self.treeview = gtk.TreeView(self.treestore)
+
+        # create the TreeViewColumn to display the data
+        self.tvcolumn = gtk.TreeViewColumn('History')
+
+        # add tvcolumn to treeview
+        self.treeview.append_column(self.tvcolumn)
+
+        # create a CellRendererText to render the data
+        self.cell = gtk.CellRendererText()
+
+        # add the cell to the tvcolumn and allow it to expand
+        self.tvcolumn.pack_start(self.cell, True)
+
+        # set the cell "text" attribute to column 0 - retrieve text
+        # from that column in treestore
+        self.tvcolumn.add_attribute(self.cell, 'text', 0)
+
+        # make it searchable
+        self.treeview.set_search_column(0)
+
+        # Allow sorting on the column
+        self.tvcolumn.set_sort_column_id(0)
+
+        # Allow drag and drop reordering of rows
+        self.treeview.set_reorderable(True)
+
+        global box3
+
+        box3.pack_start(self.treeview, False, False, 0)
+        #frame2.add(self.treeview)
+        self.treeview.show()
+
+
+
+
 
     def close_application(self, widget):
         gtk.main_quit()
@@ -254,9 +312,6 @@ class TextEditor:
         buffer = self.textview.get_buffer()
         start, end = buffer.get_selection_bounds()
         text = start.get_slice(end)
-
-        #----Open up Tree View History-----
-        TreeView()
 
         # -----Create GUI for Link Variable-----
 
@@ -341,6 +396,7 @@ class TextEditor:
 
         buttonOK=gtk.Button("OK")
         buttonOK.connect("clicked", self.save_to_buffer_link, text, linked_parent, sign, spinner1, start, end)
+        buttonOK.connect("clicked", self.add_tree)
         #buttonOK.connect("clicked", self.destroy())
 
         vbox_sub.pack_start(buttonOK, False, False, 20)
@@ -444,15 +500,7 @@ class TextEditor:
 
         new_window.show_all()
 
-# View Histror for Parent & Child Variable
-class TreeView:
-
-    # close the window and quit
-    def delete_event(self, widget, event, data=None):
-        gtk.main_quit()
-        return False
-
-    def __init__(self):
+    def do_history(self,widget):
         # Create a new window
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 
@@ -506,7 +554,6 @@ class TreeView:
         self.window.add(self.treeview)
 
         self.window.show_all()
-
 
 def main():
     gtk.main()
