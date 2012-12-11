@@ -25,15 +25,32 @@ class Application(Frame):
 
     def boldText(self):
         # Bolds highlighted text
-        self.text.tag_add("bt", "sel.first", "sel.last")
-        self.text.tag_config("bt", font="bold")
+#        self.text.tag_add("bt", "sel.first", "sel.last")
+#        self.text.tag_config("bt", font="bold")
+
+         # toggle the bold state based on the first character
+        # in the selected range. If bold, unbold it. If not
+        # bold, bold it.
+        current_tags = self.text.tag_names("sel.first")
+        if "bold" in current_tags:
+            # first char is bold, so unbold the range
+            self.text.tag_remove("bold", "sel.first", "sel.last")
+        else:
+            # first char is normal, so bold the whole selection
+            self.text.tag_add("bold", "sel.first", "sel.last") # (tagname, index1, index2)
 
     def appendText(self):
         # Inserts text at end of highlighted text
         self.text.insert("sel.last", "end")
 
+    def popWindow(self):
+        # Creates popup window
+        win = Toplevel()
+        win.frame()
+        win.config(bg="grey")
+
     def createWidgets(self):
-        # Makes window stretchable
+        # Makes window stretchable; parameters must be adjusted when buttons are added
         top=self.winfo_toplevel()
         top.rowconfigure(0, weight=1)
         top.columnconfigure(0, weight=1)
@@ -44,7 +61,7 @@ class Application(Frame):
         self.columnconfigure(1, weight=1)
 
         # Makes 'Create variable' button
-        self.createVariable = Button(self, text='Create variable', command=self.appendText)
+        self.createVariable = Button(self, text='Create variable', command=self.popWindow)
         self.createVariable.grid(column=0, row=0, sticky=N+E+S+W)
 
         # Makes 'Link values' button

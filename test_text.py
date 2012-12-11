@@ -1,4 +1,4 @@
-__author__ = 'jpark3'
+__author__ = 'jpark3' # acquired from entangle: 12/9
 
 #-------Text Editor Using GTK------------
 
@@ -60,12 +60,16 @@ class Buffer(gtk.TextBuffer):
 
 class TextEditor:
 
-    def __init__(self, buffer = None):
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        window.connect("destroy", self.close_application)
-        window.set_title("ENTANGLE")
+    def delete_event(self, widget, event, data=None):
+        gtk.main_quit()
+        return False
 
-        window.set_size_request(500, 500)
+    def __init__(self, buffer = None):
+        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.window.connect("destroy", self.close_application)
+        self.window.set_title("Entangle")
+
+        self.window.set_size_request(500, 500)
 
         self.menu_items = (
             ( "/_File",         None,         None, 0, "<Branch>" ),
@@ -86,26 +90,56 @@ class TextEditor:
 
         buffer = Buffer()
 
+        # main window
         main_vbox = gtk.VBox(False, 1)
         main_vbox.set_border_width(1)
-        window.add(main_vbox)
+        self.window.add(main_vbox)
         main_vbox.show()
 
-        menubar = self.get_main_menu(window)
+        menubar = self.get_main_menu(self.window)
 
         main_vbox.pack_start(menubar, False, True, 0)
         menubar.show()
 
-        box1 = gtk.VBox(False, 20) #expand =False
+        # main area of interaction (text input + sidebar)
+        box1 = gtk.HBox(False, 10) #expand =False
         main_vbox.pack_start(box1, True,True,0)
         box1.show()
 
+        # box for button toolbar
+        box3 = gtk.VBox(False, 10)
+
+        frame1 = gtk.Frame("Tools")
+        box3.pack_start(frame1, False, False, 20)
+        frame1.show()
+
+        frame2 = gtk.Frame("History")
+        box3.pack_start(frame2, False, False, 20)
+        frame2.show()
+
+        box1.pack_start(box3, False, True, 0)
+        box3.show()
+
+        # create toolbox
+        toolbox = gtk.VBox(False, 10)
+        toolbox.set_border_width(10)
+
+        # add toolbox to frame
+        frame1.add(toolbox)
+        toolbox.show()
+
+        # create history
+        history = gtk.TextView() # something to display history?
+        frame2.add(history)
+        history.show()
+
+        # box for text input
         box2 = gtk.VBox(False, 10)
         box2.set_border_width(10)
-
         box1.pack_start(box2, True, True, 0) # (child, expand, fill, padding)
         box2.show()
 
+        # scrolled window with place for text input
         sw = gtk.ScrolledWindow()
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self.textview = gtk.TextView(buffer)
@@ -114,12 +148,31 @@ class TextEditor:
         self.textview.show()
 
         box2.pack_start(sw, True, True, 0)
-        window.show()
+
+        # connect delete_event signal to main window
+        self.window.connect("delete_event", self.delete_event)
+
+        # set window border
+        self.window.set_border_width(10)
+
+        # insert Create Variable button
+        self.button1 = gtk.Button('Create Variable')
+        self.button1.connect("clicked", self.do_create_variable)
+        toolbox.pack_start(self.button1, True, True, 0)
+        self.button1.show()
+
+        # insert Link Values button
+        self.button2 = gtk.Button('Link Values')
+        self.button2.connect("clicked", self.do_link_variable)
+        toolbox.pack_start(self.button2, True, True, 0)
+        self.button2.show()
+
+        box1.show()
+        self.window.show()
 
     def do_save(self,callback_action, widget):
         buffer = self.textview.get_buffer()
         buffer.do_save_buffer()
-
 
     def close_application(self, widget):
         gtk.main_quit()
@@ -243,6 +296,9 @@ class TextEditor:
             vbox_sub.pack_start(button, False, False, 0)
             button.show()
 
+
+
+
         # --------- Create Option Menu ------------
         frame = gtk.Frame("Functions")
         frame.set_size_request(100,100)
@@ -252,7 +308,7 @@ class TextEditor:
         vbox_sub.set_size_request(50,100)
         frame.add(vbox_sub)
 
-        label = gtk.Label("Choose  a function")
+        label = gtk.Label("Choose a function")
         vbox_sub.pack_start(label, False, False, 10)
         label.show()
 
