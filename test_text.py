@@ -13,6 +13,9 @@ t=[] # create variable lists
 t_child=[]
 linked_parent=[]
 sign=[] #sign for selecting functions
+bold=[]
+italic=[]
+underline=[]
 box3 = gtk.VBox(False, 10)
 
 def make_menu_item(name, callback, data=None):
@@ -21,17 +24,11 @@ def make_menu_item(name, callback, data=None):
     item.show()
     return item
 
-
+'''
 class Buffer(gtk.TextBuffer):
     def __init__(self):
         gtk.TextBuffer.__init__(self)
-        tt = self.get_tag_table()
 
-        self.parent=[]
-        # A list to hold our active tags
-        self.tags_on = []
-        # Our Bold tag.
-        self.tag_bold = self.create_tag("bold", weight=pango.WEIGHT_BOLD)
 
     def save_parent(self, parent_list):
         global t
@@ -52,12 +49,12 @@ class Buffer(gtk.TextBuffer):
             startiter = self.get_start_iter()
             enditer = self.get_end_iter()
             savedText = str(self.get_text(startiter, enditer))
-            savedText = savedText + '\n' + str(t) + '\n'+ str(t_child)
+            savedText = savedText + '|' + str(t) + '|'+ str(t_child)
             fout.write(savedText)
 
         finally:
             fout.close()
-
+'''
 
 class TextEditor:
 
@@ -89,8 +86,9 @@ class TextEditor:
             ( "/_Help/About",   None,         None, 0, None ),
             )
 
-        buffer = Buffer()
-
+        #buffer = Buffer()
+        self.font = None
+        self.font_dialog = None
         # main window
         main_vbox = gtk.VBox(False, 1)
         main_vbox.set_border_width(1)
@@ -116,12 +114,14 @@ class TextEditor:
         box3.pack_start(frame0,False,False,20)
         frame0.show()
         #Boolean=1
-        fontbutton=gtk.FontButton()
+        fontbutton = gtk.Button("Font...")
+        fontbutton.connect("clicked", self.select_font)
         vbox = gtk.VBox(False, 5)
         frame0.add(vbox)
 
+        # Fonts
         texttagtable = gtk.TextTagTable()
-        buffer = gtk.TextBuffer(texttagtable)
+        self.buffer = gtk.TextBuffer(texttagtable)
 
         button_bold = gtk.Button("Bold", gtk.STOCK_BOLD)
         button_italic = gtk.Button("Italic", gtk.STOCK_ITALIC)
@@ -169,9 +169,6 @@ class TextEditor:
         # create history
         #history = gtk.TextView() # something to display history?
 
-
-
-
         # box for text input
         box2 = gtk.VBox(False, 10)
         box2.set_border_width(10)
@@ -181,7 +178,7 @@ class TextEditor:
         # scrolled window with place for text input
         sw = gtk.ScrolledWindow()
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.textview = gtk.TextView(buffer)
+        self.textview = gtk.TextView(self.buffer)
         self.textview.set_wrap_mode(gtk.WRAP_WORD)
 
         sw.add(self.textview)
@@ -213,29 +210,78 @@ class TextEditor:
         box1.show()
         self.window.show()
 
+    def font_dialog_destroyed(self, data=None):
+        self.font_dialog = None
+
+    def font_selection_ok(self, button):
+        self.font = self.font_dialog.get_font_name()
+
+        if self.window:
+            font_desc = pango.FontDescription(self.font)
+            if font_desc:
+                self.textview.modify_font(font_desc)
+
+    def select_font(self, button):
+        if not self.font_dialog:
+            window = gtk.FontSelectionDialog("Font Selection Dialog")
+            self.font_dialog = window
+
+            window.set_position(gtk.WIN_POS_MOUSE)
+
+            window.connect("destroy", self.font_dialog_destroyed)
+
+            window.ok_button.connect("clicked",
+                self.font_selection_ok)
+            window.cancel_button.connect_object("clicked",
+                lambda wid: wid.destroy(),
+                self.font_dialog)
+        window = self.font_dialog
+        if not (window.flags() & gtk.VISIBLE):
+            window.show()
+        else:
+            window.destroy()
+            self.font_dialog = None
+
 
     def bold_text(self, widget):
-        buffer = self.textview.get_buffer()
-        if buffer.get_selection_bounds() != ():
-            start, end = buffer.get_selection_bounds()
-            buffer.apply_tag(self.texttag_bold, start, end)
+        bold_child=[]
+        if self.buffer.get_selection_bounds() != ():
+            start, end = self.buffer.get_selection_bounds()
+            self.buffer.apply_tag(self.texttag_bold, start, end)
+            text = start.get_slice(end)
+            bold_child.append('bold')
+            bold_child.append(text)
+            bold_child.append(start)
+            bold_child.append(end)
+            self.save_bold_child(bold_child)
+
 
     def italic_text(self, widget):
-        buffer = self.textview.get_buffer()
-        if buffer.get_selection_bounds() != ():
-            start, end = buffer.get_selection_bounds()
-            buffer.apply_tag(self.texttag_italic, start, end)
+        italic_child=[]
+        if self.buffer.get_selection_bounds() != ():
+            start, end = self.buffer.get_selection_bounds()
+            self.buffer.apply_tag(self.texttag_italic, start, end)
+            text = start.get_slice(end)
+            italic_child.append('italic')
+            italic_child.append(text)
+            italic_child.append(start)
+            italic_child.append(end)
+            self.save_italic_child(italic_child)
 
     def underline_text(self, widget):
-        buffer = self.textview.get_buffer()
-        if buffer.get_selection_bounds() != ():
-            start, end = buffer.get_selection_bounds()
-            buffer.apply_tag(self.texttag_underline, start, end)
-
+        underline_child=[]
+        if self.buffer.get_selection_bounds() != ():
+            start, end = self.buffer.get_selection_bounds()
+            self.buffer.apply_tag(self.texttag_underline, start, end)
+            text = start.get_slice(end)
+            underline_child.append('underline')
+            underline_child.append(text)
+            underline_child.append(start)
+            underline_child.append(end)
+            self.save_underline_child(underline_child)
 
     def do_save(self,callback_action, widget):
-        buffer = Buffer()
-        buffer.do_save_buffer()
+        self.do_save_buffer()
 
     def add_tree(self,widget):
 
@@ -283,8 +329,6 @@ class TextEditor:
         box3.pack_start(self.treeview, False, False, 0)
         #frame2.add(self.treeview)
         self.treeview.show()
-
-
 
 
 
@@ -365,8 +409,8 @@ class TextEditor:
         linked_parent=[]
         sign=[]
         sign.append('+')
-        buffer = self.textview.get_buffer()
-        start, end = buffer.get_selection_bounds()
+        self.buffer = self.textview.get_buffer()
+        start, end = self.buffer.get_selection_bounds()
         text = start.get_slice(end)
 
         # -----Create GUI for Link Variable-----
@@ -406,9 +450,6 @@ class TextEditor:
             # Insert button
             vbox_sub.pack_start(button, False, False, 0)
             button.show()
-
-
-
 
         # --------- Create Option Menu ------------
         frame = gtk.Frame("Functions")
@@ -461,7 +502,7 @@ class TextEditor:
 
     def save_to_buffer_link(self,widget, child, parent,funct, spin, start, end):
         link_data=[]
-        buffer=Buffer()
+
         y_val=spin.get_value_as_int()
         link_data.append('lv')
         link_data.append(child)
@@ -472,11 +513,10 @@ class TextEditor:
         link_data.append(y_val)
         link_data.append(start)
         link_data.append(end)
-        buffer.save_child(link_data)
+        self.save_child(link_data)
 
     def save_to_buffer(self, widget, parent, spin, spin2, start, end):
         t=[]
-        buffer = Buffer()
         min=spin.get_value_as_int()
         max=spin2.get_value_as_int()
         t.append('cv')
@@ -485,7 +525,7 @@ class TextEditor:
         t.append(max)
         t.append(start)
         t.append(end)
-        buffer.save_parent(t)
+        self.save_parent(t)
         #t=[parent, min, max, start, end]
 
     def do_create_variable(self, callback_action, widget):
@@ -494,8 +534,8 @@ class TextEditor:
         new_window.set_size_request(230,150)
         new_window.set_title("Create Variable")
 
-        buffer = self.textview.get_buffer()
-        start, end = buffer.get_selection_bounds()
+        self.buffer = self.textview.get_buffer()
+        start, end = self.buffer.get_selection_bounds()
         text = start.get_slice(end)
 
         main_vbox = gtk.VBox(False, 5)
@@ -610,6 +650,54 @@ class TextEditor:
         self.window.add(self.treeview)
 
         self.window.show_all()
+
+    def save_underline_child(self,underline_child):
+        global underline
+        underline.append(underline_child)
+
+    def save_italic_child(self,italic_child):
+        global italic
+        italic.append(italic_child)
+
+
+    def save_bold_child(self,bold_child):
+        global bold
+        bold.append(bold_child)
+        print bold
+    def save_parent(self, parent_list):
+        global t
+        t.append(parent_list)
+        print t
+        return t
+    def save_child(self, child_list):
+        global t_child
+        t_child.append(child_list)
+        print t_child
+        return t_child
+
+    def do_save_buffer(self):
+        fout = open("text_save.txt", "w")
+        global t
+        global italic
+        global bold
+        global t_child
+        global underline
+
+        self.buffer = self.textview.get_buffer()
+        try:
+            startiter = self.buffer.get_start_iter()
+            enditer = self.buffer.get_end_iter()
+            savedText = str(self.buffer.get_text(startiter, enditer))
+            savedText = savedText + '|' + str(t) + '|'+ str(t_child) + '|' + str(bold) + '|' + str(italic) + '|' + str(underline)
+            fout.write(savedText)
+
+        finally:
+            fout.close()
+
+
+
+
+
 
 def main():
     gtk.main()
