@@ -114,7 +114,7 @@ class TextEditor:
         box3.pack_start(frame0,False,False,20)
         frame0.show()
         #Boolean=1
-        fontbutton = gtk.Button("Font...")
+        fontbutton = gtk.Button("Font")
         fontbutton.connect("clicked", self.select_font)
         vbox = gtk.VBox(False, 5)
         frame0.add(vbox)
@@ -136,6 +136,11 @@ class TextEditor:
         self.texttag_underline = gtk.TextTag("underline")
         self.texttag_underline.set_property("underline", pango.UNDERLINE_SINGLE)
         texttagtable.add(self.texttag_underline)
+
+        # change color for variables
+        self.texttag_color = gtk.TextTag("foreground")
+        self.texttag_color.set_property("foreground", pango.Color('#00CED1'))
+        texttagtable.add(self.texttag_color)
 
         vbox.pack_start(fontbutton)
         vbox.pack_start(button_bold)
@@ -332,9 +337,9 @@ class TextEditor:
 
 
 
-    def close_application(self, widget):
-        gtk.main_quit()
-
+    def close_application(self, widget, new_window):
+        #new_window.emit("delete-event", gtk.gdk.Event(gtk.gdk.DELETE))
+        new_window.destroy()
     # This is the ItemFactoryEntry structure used to generate new menus.
     # Item 1: The menu path. The letter after the underscore indicates an
     #         accelerator key once the menu is open.
@@ -411,22 +416,23 @@ class TextEditor:
         sign.append('+')
         self.buffer = self.textview.get_buffer()
         start, end = self.buffer.get_selection_bounds()
+        self.buffer.apply_tag(self.texttag_color, start, end)
         text = start.get_slice(end)
 
         # -----Create GUI for Link Variable-----
 
-        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        new_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         # Set the window title
-        self.window.set_title("Link Variable - Entangle")
+        new_window.set_title("Link Variable - Entangle")
         # Set a handler for delete_event that immediately
         # exits GTK.
-        self.window.connect("delete_event", self.close_application)
+        new_window.connect("delete_event", self.close_application)
         # Sets the border width of the window.
-        self.window.set_size_request(200,500)
+        new_window.set_size_request(200,500)
         # Create a vertical box
         vbox = gtk.VBox(True, 2)
         # Put the vbox in the main window
-        self.window.add(vbox)
+        new_window.add(vbox)
         frame = gtk.Frame("Parent Variables")
         frame.set_size_request(100,200)
         vbox.pack_start(frame, False, False, 20)
@@ -494,11 +500,13 @@ class TextEditor:
         buttonOK=gtk.Button("OK")
         buttonOK.connect("clicked", self.save_to_buffer_link, text, linked_parent, sign, spinner1, start, end)
         buttonOK.connect("clicked", self.add_tree)
+        buttonOK.connect("clicked", self.close_application,new_window)
+
         #buttonOK.connect("clicked", self.destroy())
 
         vbox_sub.pack_start(buttonOK, False, False, 20)
 
-        self.window.show_all()
+        new_window.show_all()
 
     def save_to_buffer_link(self,widget, child, parent,funct, spin, start, end):
         link_data=[]
@@ -536,6 +544,7 @@ class TextEditor:
 
         self.buffer = self.textview.get_buffer()
         start, end = self.buffer.get_selection_bounds()
+        self.buffer.apply_tag(self.texttag_color, start, end)
         text = start.get_slice(end)
 
         main_vbox = gtk.VBox(False, 5)
@@ -586,12 +595,13 @@ class TextEditor:
 
         button.connect("clicked", self.save_to_buffer, text, spinner1, spinner2,
             start, end )
+        button.connect("clicked", self.close_application,new_window)
 
 
         hbox.pack_start(button, True, True, 5)
 
         button = gtk.Button("Close")
-        button.connect("clicked", self.close_application)
+        button.connect("clicked", self.close_application,new_window)
         hbox.pack_start(button, True, True, 5)
 
         new_window.show_all()
