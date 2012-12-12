@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title></title>
+
+    <script type="text/javascript" src="Tangle.js"></script>
+
+    <link rel="stylesheet" href="TangleKit/TangleKit.css" type="text/css">
+    <script type="text/javascript" src="TangleKit/mootools.js"></script>
+    <script type="text/javascript" src="TangleKit/sprintf.js"></script>
+    <script type="text/javascript" src="TangleKit/BVTouchable.js"></script>
+    <script type="text/javascript" src="TangleKit/TangleKit.js"></script>
+	
+	<script type = "text/javascript">
+		function setUpTangle () {
+			var element = document.getElementById("0");
+			var tangle = new Tangle(element, {
+				initialize: function() {
+					this.chocolate = 5;
+					this.caloriesPerchocolate = 10;
+				},
+				update: function () {
+					this.calories = this.chocolate*this.caloriesPerchocolate;
+				}
+			}};
+		}
+
+			var element = document.getElementById("1");
+			var tangle = new Tangle(element, {
+				initialize: function() {
+					this.oatmeal = 5;
+					this.muffinsPeroatmeal = 4;
+				},
+				update: function () {
+					this.muffins = this.oatmeal*this.muffinsPeroatmeal;
+				}
+			}};
+		}
+	</script>
+</head>
+<body onload="setUpTangle();">
+	<p>
+	This is a simple reactive document.
+	</p>
+
+	<p id="0">
+		When you eat <span data-var="chocolate" class="TKAdjustableNumber" data-min="1" data-max="50">chocolate</span>, you will consume <span data-var="calories"></span>calories.
+	</p>
+
+	<p>
+	When you eat chocolate, you will consume calories.
+	</p>
+
+	<p>
+	This is a test for a multi-lined paragraph. This is a test for a multilined paragraph. This is a test for a multilined paragraph.
+	</p>
+
+	<p id="1">
+		When you eat <span data-var="oatmeal" class="TKAdjustableNumber" data-min="10" data-max="100">oatmeal</span>, you will consume <span data-var="muffins"></span>muffins.
+	</p>
+
+</body>
+</html>

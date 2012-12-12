@@ -1,0 +1,4 @@
+This is a simple reactive document.
+When you eat chocolate, you will consume calories.
+This is a test for a multi-lined paragraph. This is a test for a multilined paragraph. This is a test for a multilined paragraph.
+When you eat oatmeal, you will consume muffins.

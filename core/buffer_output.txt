@@ -1,0 +1,1 @@
+[['font stuff'],'|',[['cv',u'chocolate',1,50,<GtkTextIter at 0x2930923>,<GtkTextIter at 0x9148109>],['cv',u'oatmeal',10,100,<GtkTextIter at 0x2930923>,<GtkTextIter at 0x9148109>]],'|',['lv', u'calories', u'chocolate', '*', 10, <GtkTextIter at 0x24abe00>, <GtkTextIter at 0x24abe70>],['lv', u'muffins', u'oatmeal', '*', 4, <GtkTextIter at 0x24abe00>, <GtkTextIter at 0x24abe70>]
