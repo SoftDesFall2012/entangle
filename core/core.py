@@ -252,3 +252,5 @@ class core:
         core.do_font_inject(self)
         core.hunter2(self)
         core.do_assemble(self)
+
+core().main()
