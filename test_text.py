@@ -403,7 +403,8 @@ class TextEditor:
 
         label = gtk.Label('Entangle ver.1.0 \n\n\n'
                           'Author : Nathan Tsing, Helen Wang, Jong Hewk Park \n\n'
-                          'Olin Sofware Design Final Project 2012 \n')
+                          'Olin Sofware Design Final Project 2012 \n'
+                          ' \n JS Tangle Library Used')
 
         new_window.add(label)
         new_window.show_all()
