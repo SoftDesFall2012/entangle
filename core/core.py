@@ -1,19 +1,23 @@
 class core:
 
     def __init__(self):
-        self.txt = open('txt_output.txt').read()
-        self.txt = self.txt.strip('[]')
 
+        self.output = open('txt_save.txt').read()
 
-        self.buffer = open('buffer_output.txt').read()
-        self.buffer = self.buffer.strip('[]')
-        self.buffer = self.buffer.split(',')
+        self.buffer = self.output
+
+        #self.txt = open('txt_output.txt').read()
+        #self.txt = self.txt.strip('[]')
+
+        #self.buffer = open('buffer_output.txt').read()
+        #self.buffer = self.buffer.strip('[]')
+        #self.buffer = self.buffer.split(',')
 
         self.header = open('header.txt').read()
         self.body = ''
 
         self.cv_list = []
-        self. lv_list = []
+        self.lv_list = []
 
         self.count = []
 
@@ -22,17 +26,25 @@ class core:
         strip_buffer = self.buffer
 
         # Split the buffer output into smaller and more usable lists.
-        font_index = strip_buffer.index("'|'") #make sure jong csvs the '|'
-        font_list = strip_buffer[:font_index]
+        text_index = strip_buffer.index("|")
+        text_list = strip_buffer[:text_index]
+        text_list = text_list.rstrip(',')
 
-        del strip_buffer[:font_index+1]
+        strip_buffer = strip_buffer.split(',')
+        n_text_list = text_list.split(',')
+        del strip_buffer[:len(n_text_list)+1]
 
-        cv_index = strip_buffer.index("'|'")
+
+        cv_index = strip_buffer.index('|')
         cv_list = strip_buffer[:cv_index]
+
 
         del strip_buffer[:cv_index+1]
 
-        lv_list = strip_buffer
+        lv_index = strip_buffer.index('|')
+        lv_list = strip_buffer[:lv_index]
+
+        del strip_buffer[:lv_index+1]
 
         # Clean up the lists a bit.
 
@@ -49,6 +61,8 @@ class core:
 
         self.cv_list = cv_list
         self.lv_list = lv_list
+        self.txt = text_list
+
 
     def do_header_inject(self):
 
@@ -83,7 +97,7 @@ class core:
             header += '\n\t\t\tvar element = document.getElementById("'+str(i)+'");\n'
             header += '\t\t\tvar tangle = new Tangle(element, {\n'
             header += '\t\t\t\tinitialize: function() {\n'
-            header += '\t\t\t\t\tthis.'+word1+' = 5;\n'
+            header += '\t\t\t\t\tthis.'+word1+' = hunter'+str(i)+';\n'
             header += '\t\t\t\t\tthis.'+word2+'Per'+word1+' = '+n_value+';\n'
             header += '\t\t\t\t},\n'
             header += '\t\t\t\tupdate: function () {\n'
@@ -96,6 +110,7 @@ class core:
         header += '</head>'
 
         self.header = header
+
 
     def do_add_maxmin_count(self):
 
@@ -157,18 +172,29 @@ class core:
         final_body += '</html>'
         self.body = final_body
 
+    def hunter2(self):
+
+        moose = ''
+        for i in range(len(self.count)):
+
+            avg = (int(self.count[i][3])+int(self.count[i][4]))/2
+            hunterdos = 'hunter'+str(i)
+            print hunterdos
+            print avg
+            self.header = self.header.replace(hunterdos,str(avg))
+
     def do_assemble(self):
         compiled = self.header + self.body
         fout = open('coreoutput.html', 'w')
         fout.write(compiled)
         fout.close()
-        print compiled
 
     def main(self):
         core.indexer(self)
         core.do_header_inject(self)
         core.do_add_maxmin_count(self)
         core.do_body_inject(self)
+        core.hunter2(self)
         core.do_assemble(self)
 
 core().main()

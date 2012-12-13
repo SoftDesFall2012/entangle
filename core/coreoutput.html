@@ -21,10 +21,10 @@
 			var tangle = new Tangle(element, {
 				initialize: function() {
 					this.chocolate = 5;
-					this.caloriesPerchocolate = 10;
+					this.caloriesPerchocolate = 20;
 				},
 				update: function () {
-					this.calories = this.chocolate*this.caloriesPerchocolate;
+					this.calories = this.chocolate+this.caloriesPerchocolate;
 				}
 			});
 		}
@@ -37,8 +37,8 @@
 			var element = document.getElementById("1");
 			var tangle = new Tangle(element, {
 				initialize: function() {
-					this.oatmeal = 5;
-					this.muffinsPeroatmeal = 4;
+					this.oatmeal = 160;
+					this.muffinsPeroatmeal = 30;
 				},
 				update: function () {
 					this.muffins = this.oatmeal*this.muffinsPeroatmeal;
@@ -53,7 +53,7 @@
 	</p>
 
 	<p id="0">
-		When you eat <span data-var="chocolate" class="TKAdjustableNumber" data-min="1" data-max="50"> chocolate</span>, you will consume <span data-var="calories"></span> calories.
+		When you eat <span data-var="chocolate" class="TKAdjustableNumber" data-min=" 0" data-max=" 10"> chocolate</span>, you will consume <span data-var="calories"></span> calories.
 	</p>
 
 	<p>
@@ -61,11 +61,19 @@
 	</p>
 
 	<p>
+	
+	</p>
+
+	<p>
 	This is a test for a multi-lined paragraph. This is a test for a multilined paragraph. This is a test for a multilined paragraph.
 	</p>
 
+	<p>
+	
+	</p>
+
 	<p id="1">
-		When you eat <span data-var="oatmeal" class="TKAdjustableNumber" data-min="10" data-max="100"> oatmeal</span>, you will consume <span data-var="muffins"></span> muffins.
+		When you eat <span data-var="oatmeal" class="TKAdjustableNumber" data-min=" 20" data-max=" 300"> oatmeal</span>, you will consume <span data-var="muffins"></span> muffins.
 	</p>
 
 </body>
