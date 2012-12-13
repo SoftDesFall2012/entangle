@@ -58,10 +58,9 @@ class core:
         italic_index = strip_buffer.index('|')
         italic_list = strip_buffer[:italic_index]
 
-        del strip_buffer[:italic_index]
+        del strip_buffer[:italic_index+1]
 
-        underline_index = strip_buffer.index('|')
-        underline_list = strip_buffer[:underline_index]
+        underline_list = strip_buffer
 
         # Clean up the lists a bit.
 
@@ -146,7 +145,7 @@ class core:
             if match == self.count[i][1]:
                 self.count[i].append(self.cv_list[1+i*5])
                 self.count[i].append(self.cv_list[2+i*5])
-            
+
 
 
     def do_body_inject(self):
@@ -195,7 +194,7 @@ class core:
         self.body = final_body
 
     def do_font_inject(self):
-        
+
         count_bfont = []
         count_ifont = []
         count_ufont = []
@@ -216,18 +215,19 @@ class core:
             uword = str(self.underline[1+(m*4)])
             uword = uword.lstrip(' ["u')
             uword = uword.strip("' ")
+            uword = uword.rstrip('"')
             count_ufont.append([str(m), uword])
-            
+            print uword
+
         for x in range(len(count_bfont)):
             self.body = self.body.replace(count_bfont[x][1], '<b>'+count_bfont[x][1]+'</b>')
-            
+
         for y in range(len(count_ifont)):
             self.body = self.body.replace(count_ifont[y][1], '<i>'+count_ifont[y][1]+'</i>')
-            
-        for z in range(len(count_ufont)):
-            self.body = self.body.replace(count_ufont[z][1], '<ul>'+count_ufont[z][1]+'</ul>')
 
-        print count_ufont
+        for z in range(len(count_ufont)):
+            self.body = self.body.replace(count_ufont[z][1], '<u>'+count_ufont[z][1]+'</u>')
+
     def hunter2(self):
 
         moose = ''
