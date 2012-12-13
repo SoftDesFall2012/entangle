@@ -72,7 +72,7 @@ class TextEditor:
         self.menu_items = (
             ( "/_File",         None,         None, 0, "<Branch>" ),
             ( "/File/_New",     "<control>N", self.do_new, 0, None ),
-            ( "/File/_Open",    "<control>O", self.do_open, 0, None ),
+            ( "/File/_Open",    "<control>O", None, 0, None ),
             ( "/File/_Save",    "<control>S", self.do_save, 0, None ),
             ( "/File/Save _As", None,         None, 0, None ),
             ( "/File/sep1",     None,         None, 0, "<Separator>" ),
@@ -83,7 +83,7 @@ class TextEditor:
             ( "/_Run",      None,         None, 0, "<Branch>" ),
             ( "/Run/Compile", "<control><shift>F10", None, 0, None ),
             ( "/_Help",         None,         None, 0, "<LastBranch>" ),
-            ( "/_Help/About",   None,         None, 0, None ),
+            ( "/_Help/About", None,  self.do_about, 0, None ),
             )
 
         #buffer = Buffer()
@@ -139,6 +139,7 @@ class TextEditor:
         self.texttag_underline = gtk.TextTag("underline")
         self.texttag_underline.set_property("underline", pango.UNDERLINE_SINGLE)
         texttagtable.add(self.texttag_underline)
+
         # change color for variables
         self.texttag_color = gtk.TextTag("foreground")
         self.texttag_color.set_property("foreground", pango.Color('#00CED1'))
@@ -218,6 +219,8 @@ class TextEditor:
 
         box1.show()
         self.window.show()
+
+
 
     def font_dialog_destroyed(self, data=None):
         self.font_dialog = None
@@ -334,8 +337,7 @@ class TextEditor:
         self.treeview.set_reorderable(True)
 
         global box3
-        #box3.pack_start_default
-        print box3.get_homogeneous()
+
         box3.pack_start(self.treeview, False, False, 0)
         #frame2.add(self.treeview)
         self.treeview.show()
@@ -345,7 +347,7 @@ class TextEditor:
     def close_application(self, widget, new_window):
         #new_window.emit("delete-event", gtk.gdk.Event(gtk.gdk.DELETE))
         new_window.destroy()
-        # This is the ItemFactoryEntry structure used to generate new menus.
+    # This is the ItemFactoryEntry structure used to generate new menus.
     # Item 1: The menu path. The letter after the underscore indicates an
     #         accelerator key once the menu is open.
     # Item 2: The accelerator key for the entry
@@ -393,6 +395,20 @@ class TextEditor:
     def do_new(self, callback_action, widget):
         TextEditor()
 
+    def do_about(self, callback_action, widget):
+        new_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        # Set the window title
+        new_window.set_title("About")
+        new_window.connect("delete_event", self.close_application)
+
+        label = gtk.Label('Entangle ver.1.0 \n\n\n'
+                          'Author : Nathan Tsing, Helen Wang, Jong Hewk Park \n\n'
+                          'Olin Sofware Design Final Project 2012 \n')
+
+        new_window.add(label)
+        new_window.show_all()
+
+
     def callback(self, widget, data=None):
         global linked_parent
 
@@ -411,8 +427,6 @@ class TextEditor:
         del sign[0]
         sign.append(val)
 
-    def color_variable(self,widget,start,end):
-        self.buffer.apply_tag(self.texttag_color, start, end)
 
     def do_link_variable(self, callback_action, widget):
         global linked_parent
@@ -423,7 +437,7 @@ class TextEditor:
         sign.append('+')
         self.buffer = self.textview.get_buffer()
         start, end = self.buffer.get_selection_bounds()
-        #self.buffer.apply_tag(self.texttag_color, start, end)
+        self.buffer.apply_tag(self.texttag_color, start, end)
         text = start.get_slice(end)
 
         # -----Create GUI for Link Variable-----
@@ -508,8 +522,8 @@ class TextEditor:
         buttonOK=gtk.Button("OK")
         buttonOK.connect("clicked", self.save_to_buffer_link, text, linked_parent, sign, spinner1, start, end)
         buttonOK.connect("clicked", self.add_tree)
-        buttonOK.connect("clicked", self.color_variable,start,end)
         buttonOK.connect("clicked", self.close_application,new_window)
+
         #buttonOK.connect("clicked", self.destroy())
 
         vbox.pack_start(buttonOK, False, False, 20)
@@ -552,7 +566,7 @@ class TextEditor:
 
         self.buffer = self.textview.get_buffer()
         start, end = self.buffer.get_selection_bounds()
-        #self.buffer.apply_tag(self.texttag_color, start, end)
+        self.buffer.apply_tag(self.texttag_color, start, end)
         text = start.get_slice(end)
 
         main_vbox = gtk.VBox(False, 5)
@@ -603,9 +617,7 @@ class TextEditor:
 
         button.connect("clicked", self.save_to_buffer, text, spinner1, spinner2,
             start, end )
-        button.connect("clicked", self.color_variable,start,end)
         button.connect("clicked", self.close_application,new_window)
-
 
 
         hbox.pack_start(button, True, True, 5)
@@ -671,24 +683,6 @@ class TextEditor:
 
         self.window.show_all()
 
-    def open_ok_func(self, filename):
-        new_view = self.get_empty_view()
-        buffer = new_view.text_view.get_buffer()
-        if not buffer.fill_file_buffer(filename):
-            if new_view != self:
-                new_view.close_view()
-            return False
-        else:
-            buffer.filename = filename
-            buffer.filename_set()
-            return True;
-
-    def do_open(self, callback_action, widget):
-        FileSel().run(self, "Open File", None, self.open_ok_func)
-
-
-
-
     def save_underline_child(self,underline_child):
         global underline
         underline.append(underline_child)
@@ -726,38 +720,13 @@ class TextEditor:
             startiter = self.buffer.get_start_iter()
             enditer = self.buffer.get_end_iter()
             savedText = str(self.buffer.get_text(startiter, enditer))
-            savedText = savedText+',' + '|' +','+ str(t)+',' + '|'+','+ str(t_child)+',' + '|' +','+ str(bold)+',' + '|'+',' + str(italic)+',' + '|'+',' + str(underline)
+            savedText = savedText + '|' + str(t) + '|'+ str(t_child) + '|' + str(bold) + '|' + str(italic) + '|' + str(underline)
             fout.write(savedText)
 
         finally:
             fout.close()
 
 
-class FileSel(gtk.FileSelection):
-    def __init__(self):
-        gtk.FileSelection.__init__(self)
-        self.result = False
-
-    def ok_cb(self, button):
-        self.hide()
-        if self.ok_func(self.get_filename()):
-            self.destroy()
-            self.result = True
-        else:
-            self.show()
-
-    def run(self, parent, title, start_file, func):
-        if start_file:
-            self.set_filename(start_file)
-
-        self.ok_func = func
-        self.ok_button.connect("clicked", self.ok_cb)
-        self.cancel_button.connect("clicked", lambda x: self.destroy())
-        self.connect("destroy", lambda x: gtk.main_quit())
-        self.set_modal(True)
-        self.show()
-        gtk.main()
-        return self.result
 
 
 
