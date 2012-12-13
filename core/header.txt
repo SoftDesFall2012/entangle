@@ -12,5 +12,3 @@
     <script type="text/javascript" src="TangleKit/BVTouchable.js"></script>
     <script type="text/javascript" src="TangleKit/TangleKit.js"></script>
 	
-	<script type = "text/javascript">
-		function setUpTangle () {
