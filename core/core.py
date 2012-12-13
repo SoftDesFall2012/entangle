@@ -91,7 +91,6 @@ class core:
 
         for i in range(n_lv):
 
-
             word1 = str(self.lv_list[1+(i*6)])
             word2 = str(self.lv_list[0+(i*6)])
 
@@ -153,6 +152,8 @@ class core:
         final_body = ''
         strip_body = self.txt
         strip_body = self.txt.splitlines()
+        search = ''
+        search2 = ''
 
 
         n_txt = self.txt.count('\n')
@@ -217,7 +218,6 @@ class core:
             uword = uword.strip("' ")
             uword = uword.rstrip('"')
             count_ufont.append([str(m), uword])
-            print uword
 
         for x in range(len(count_bfont)):
             self.body = self.body.replace(count_bfont[x][1], '<b>'+count_bfont[x][1]+'</b>')
