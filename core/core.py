@@ -147,20 +147,21 @@ class core:
 
         for i in range(n_txt):
 
-            working_body = strip_body[i]
+            working_body = strip_body[i+1]
 
             for n in range(len(self.count)):
 
                 search = working_body.find(self.count[n][1])
 
-                if search != -1:
-
+                if search == -1:
+                    pass
+                else:
                     search2 = working_body.find(self.count[n][2])
-
 
                     final_body += '\t<p id="'+self.count[n][0]+'">\n'
                     final_body += '\t\t'+working_body[:search]+'<span data-var="'+self.count[n][1]+'" class="TKAdjustableNumber" data-min="'+self.count[n][3]+'" data-max="'+self.count[n][4]+'"> '+self.count[n][1]+'</span>'+working_body[search+len(self.count[n][1]):search2]+'<span data-var="'+self.count[n][2]+'"></span> '+working_body[search2:]+'\n'
                     final_body += '\t</p>\n\n'
+                    break
 
             if search != -1:
                 pass

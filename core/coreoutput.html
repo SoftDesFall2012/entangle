@@ -15,16 +15,16 @@
 
 
 	<script type = "text/javascript">
-		function chocolatecalories () {
+		function feetinches () {
 
 			var element = document.getElementById("0");
 			var tangle = new Tangle(element, {
 				initialize: function() {
-					this.chocolate = 5;
-					this.caloriesPerchocolate = 20;
+					this.feet = 5;
+					this.inchesPerfeet = 12;
 				},
 				update: function () {
-					this.calories = this.chocolate+this.caloriesPerchocolate;
+					this.inches = this.feet*this.inchesPerfeet;
 				}
 			});
 		}
@@ -32,32 +32,58 @@
 
 
 	<script type = "text/javascript">
-		function oatmealmuffins () {
+		function cmmeter () {
 
 			var element = document.getElementById("1");
 			var tangle = new Tangle(element, {
 				initialize: function() {
-					this.oatmeal = 160;
-					this.muffinsPeroatmeal = 30;
+					this.cm = 175;
+					this.meterPercm = 100;
 				},
 				update: function () {
-					this.muffins = this.oatmeal*this.muffinsPeroatmeal;
+					this.meter = this.cm/this.meterPercm;
+				}
+			});
+		}
+	</script>
+
+
+	<script type = "text/javascript">
+		function daysmonths () {
+
+			var element = document.getElementById("2");
+			var tangle = new Tangle(element, {
+				initialize: function() {
+					this.days = 310;
+					this.monthsPerdays = 17;
+				},
+				update: function () {
+					this.months = this.days+this.monthsPerdays;
+				}
+			});
+		}
+	</script>
+
+
+	<script type = "text/javascript">
+		function cookiescakes () {
+
+			var element = document.getElementById("3");
+			var tangle = new Tangle(element, {
+				initialize: function() {
+					this.cookies = 600;
+					this.cakesPercookies = 19;
+				},
+				update: function () {
+					this.cakes = this.cookies-this.cakesPercookies;
 				}
 			});
 		}
 	</script>
 </head>
-<body onload="chocolatecalories();oatmealmuffins();">
-	<p>
-	This is a simple reactive document.
-	</p>
-
+<body onload="feetinches();cmmeter();daysmonths();cookiescakes();">
 	<p id="0">
-		When you eat <span data-var="chocolate" class="TKAdjustableNumber" data-min=" 0" data-max=" 10"> chocolate</span>, you will consume <span data-var="calories"></span> calories.
-	</p>
-
-	<p>
-	When you eat chocolate, you will consume calories.
+		I am <span data-var="feet" class="TKAdjustableNumber" data-min=" 4" data-max=" 7"> feet</span>,  I am <span data-var="inches"></span> inches. 
 	</p>
 
 	<p>
@@ -65,15 +91,39 @@
 	</p>
 
 	<p>
-	This is a test for a multi-lined paragraph. This is a test for a multilined paragraph. This is a test for a multilined paragraph.
-	</p>
-
-	<p>
-	
+	My name is Jong.
 	</p>
 
 	<p id="1">
-		When you eat <span data-var="oatmeal" class="TKAdjustableNumber" data-min=" 20" data-max=" 300"> oatmeal</span>, you will consume <span data-var="muffins"></span> muffins.
+		I am <span data-var="cm" class="TKAdjustableNumber" data-min=" 150" data-max=" 200"> cm</span>, I am <span data-var="meter"></span> meter. 
+	</p>
+
+	<p>
+	
+	</p>
+
+	<p>
+	
+	</p>
+
+	<p>
+	My name is Helen. 
+	</p>
+
+	<p id="2">
+		I am testing adding.  <span data-var="days" class="TKAdjustableNumber" data-min=" 20" data-max=" 600"> days</span> <span data-var="months"></span> months
+	</p>
+
+	<p>
+	
+	</p>
+
+	<p>
+	My name is Bob.
+	</p>
+
+	<p id="3">
+		I am testing subtracting. <span data-var="cookies" class="TKAdjustableNumber" data-min=" 500" data-max=" 700"> cookies</span> <span data-var="cakes"></span> cakes
 	</p>
 
 </body>
