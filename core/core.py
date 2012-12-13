@@ -78,8 +78,8 @@ class core:
 
             function_value = function_value.strip("' ")
 
-            #header += '\n\n\t<script type = "text/javascript">\n'
-            #header += '\t\tfunction setUpTangle () {\n'
+            header += '\n\n\t<script type = "text/javascript">\n'
+            header += '\t\tfunction '+word1+word2+' () {\n'
             header += '\n\t\t\tvar element = document.getElementById("'+str(i)+'");\n'
             header += '\t\t\tvar tangle = new Tangle(element, {\n'
             header += '\t\t\t\tinitialize: function() {\n'
@@ -89,10 +89,10 @@ class core:
             header += '\t\t\t\tupdate: function () {\n'
             header += '\t\t\t\t\tthis.'+word2+' = this.'+word1+function_value+'this.'+word2+'Per'+word1+';\n'
             header += '\t\t\t\t}\n'
-            header += '\t\t\t}};\n'
+            header += '\t\t\t});\n'
             header += '\t\t}\n'
+            header += '\t</script>\n'
 
-        header += '\t</script>\n'
         header += '</head>'
 
         self.header = header
@@ -123,7 +123,12 @@ class core:
 
         n_txt = self.txt.count('\n')
 
-        final_body = '\n<body onload="setUpTangle();">\n'
+        tangle_functions = ''
+
+        for m in range(len(self.count)):
+            tangle_functions += self.count[m][1]+self.count[m][2]+'();'
+
+        final_body = '\n<body onload="'+tangle_functions+'">\n'
 
         for i in range(n_txt+1):
             working_body = strip_body[i]
@@ -138,7 +143,7 @@ class core:
 
 
                     final_body += '\t<p id="'+self.count[n][0]+'">\n'
-                    final_body += '\t\t'+working_body[:search]+'<span data-var="'+self.count[n][1]+'" class="TKAdjustableNumber" data-min="'+self.count[n][3]+'" data-max="'+self.count[n][4]+'">'+self.count[n][1]+'</span>'+working_body[search+len(self.count[n][1]):search2]+'<span data-var="'+self.count[n][2]+'"></span>'+working_body[search2:]+'\n'
+                    final_body += '\t\t'+working_body[:search]+'<span data-var="'+self.count[n][1]+'" class="TKAdjustableNumber" data-min="'+self.count[n][3]+'" data-max="'+self.count[n][4]+'"> '+self.count[n][1]+'</span>'+working_body[search+len(self.count[n][1]):search2]+'<span data-var="'+self.count[n][2]+'"></span> '+working_body[search2:]+'\n'
                     final_body += '\t</p>\n\n'
 
             if search != -1:
@@ -167,19 +172,3 @@ class core:
         core.do_assemble(self)
 
 core().main()
-
-'''
-               # print "this is n:", n
-
-                for m in range(len(working_body)):
-                    print self.count[n][1].strip("'")
-                    print working_body[m]
-                    #print "this is m:", m
-
-                    if working_body[m] == self.count[n][1].strip("'"):
-                        print self.count[n][1]
-
-            #search = [(n, m) for n in range(len(self.count)) for m in range(len(working_body)) if working_body[m] == self.count[n][2+i]]
-
-
-'''
