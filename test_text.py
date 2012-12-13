@@ -81,9 +81,9 @@ class TextEditor:
             ( "/Functions/Create Variable", "<control><shift>N", self.do_create_variable, 0, None ),
             ( "/Functions/Link",  "<control><shift>L", self.do_link_variable, 0, None ),
             ( "/_Run",      None,         None, 0, "<Branch>" ),
-            ( "/Run/Compile", "<control><shift>F10", None, 0, None ),
+            ( "/Run/Compile", "<control><shift>F10", self.do_compile, 0, None ),
             ( "/_Help",         None,         None, 0, "<LastBranch>" ),
-            ( "/_Help/About",   None,         None, 0, None ),
+            ( "/_Help/About",   None,        self.do_about, 0, None ),
             )
 
         #buffer = Buffer()
@@ -291,6 +291,24 @@ class TextEditor:
 
     def do_save(self,callback_action, widget):
         self.do_save_buffer()
+
+    def do_compile(self,callback_action, widget):
+        return
+        #self.do_save_buffer()
+        #core().main()
+    def do_about(self,callback_action, widget):
+        new_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        # Set the window title
+        new_window.set_title("About Entangle")
+        new_window.connect("delete_event", self.close_application)
+        label = gtk.Label('\n\n\nEntangle ver.1.0 \n\n'
+                          'Author : Nathan Tsai, Helen Wang, Jong Hewk Park\t\n\n'
+                          'Last Revised: 2012/ 12/ 13\n\n'
+                          'Libray Used: Bret Victor Tangle.js\n\n\n\n')
+        label.show()
+        new_window.add(label)
+        new_window.show()
+
 
     def add_tree(self,widget):
 
