@@ -24,51 +24,24 @@ def make_menu_item(name, callback, data=None):
     item.show()
     return item
 
-'''
-class Buffer(gtk.TextBuffer):
-    def __init__(self):
-        gtk.TextBuffer.__init__(self)
-
-
-    def save_parent(self, parent_list):
-        global t
-        t.append(parent_list)
-        print t
-        return t
-    def save_child(self, child_list):
-        global t_child
-        t_child.append(child_list)
-        print t_child
-        return t_child
-
-    def do_save_buffer(self):
-        fout = open("text_save.txt", "w")
-        global t
-
-        try:
-            startiter = self.get_start_iter()
-            enditer = self.get_end_iter()
-            savedText = str(self.get_text(startiter, enditer))
-            savedText = savedText + '|' + str(t) + '|'+ str(t_child)
-            fout.write(savedText)
-
-        finally:
-            fout.close()
-'''
-
+#TextView starts
 class TextEditor:
 
+    #A Function that Quits Everything
     def delete_event(self, widget, event, data=None):
         gtk.main_quit()
         return False
 
+
     def __init__(self, buffer = None):
+
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.window.connect("destroy", self.close_application)
-        self.window.set_title("Entangle")
+        #Create a Window
+        self.window.connect("destroy", self.close_application) # Connect to quit
+        self.window.set_title("Entangle") #Title
+        self.window.set_size_request(600, 700) #Set the size
 
-        self.window.set_size_request(600, 700)
-
+        #select the menu items
         self.menu_items = (
             ( "/_File",         None,         None, 0, "<Branch>" ),
             ( "/File/_New",     "<control>N", self.do_new, 0, None ),
@@ -86,7 +59,6 @@ class TextEditor:
             ( "/_Help/About",   None,        self.do_about, 0, None ),
             )
 
-        #buffer = Buffer()
         self.font = None
         self.font_dialog = None
         # main window
@@ -96,7 +68,6 @@ class TextEditor:
         main_vbox.show()
 
         menubar = self.get_main_menu(self.window)
-
         main_vbox.pack_start(menubar, False, True, 0)
         menubar.show()
 
@@ -130,6 +101,7 @@ class TextEditor:
         button_italic = gtk.Button("Italic", gtk.STOCK_ITALIC)
         button_underline = gtk.Button("Underline", gtk.STOCK_UNDERLINE)
 
+        #Create Tags
         self.texttag_bold = gtk.TextTag("bold")
         self.texttag_bold.set_property("weight", pango.WEIGHT_BOLD)
         texttagtable.add(self.texttag_bold)
@@ -149,15 +121,12 @@ class TextEditor:
         vbox.pack_start(button_italic, False, False)
         vbox.pack_start(button_underline, False, False)
 
-        #fontbutton.show()
-
         button_bold.connect("clicked", self.bold_text)
         button_italic.connect("clicked", self.italic_text)
         button_underline.connect("clicked", self.underline_text)
 
         frame0.show_all()
 
-        #box3.set_size_request(100,300)
         frame1 = gtk.Frame("Tools")
         box3.pack_start(frame1, False, False, 20)
         frame1.show()
@@ -294,8 +263,8 @@ class TextEditor:
 
     def do_compile(self,callback_action, widget):
         return
-        #self.do_save_buffer()
-        #core().main()
+
+    #Create a about pagee
     def do_about(self,callback_action, widget):
         new_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         # Set the window title
@@ -358,41 +327,14 @@ class TextEditor:
         self.treeview.show()
 
 
-
+    # Close applications
     def close_application(self, widget, new_window):
-        #new_window.emit("delete-event", gtk.gdk.Event(gtk.gdk.DELETE))
-        new_window.destroy()
-        # This is the ItemFactoryEntry structure used to generate new menus.
-    # Item 1: The menu path. The letter after the underscore indicates an
-    #         accelerator key once the menu is open.
-    # Item 2: The accelerator key for the entry
-    # Item 3: The callback.
-    # Item 4: The callback action.  This changes the parameters with
-    #         which the callback is called.  The default is 0.
-    # Item 5: The item type, used to define what kind of an item it is.
-    #       Here are the possible values:
 
-    #       NULL               -> "<Item>"
-    #       ""                 -> "<Item>"
-    #       "<Title>"          -> create a title item
-    #       "<Item>"           -> create a simple item
-    #       "<CheckItem>"      -> create a check item
-    #       "<ToggleItem>"     -> create a toggle item
-    #       "<RadioItem>"      -> create a radio item
-    #       <path>             -> path of a radio item to link against
-    #       "<Separator>"      -> create a separator
-    #       "<Branch>"         -> create an item to hold sub items (optional)
-    #       "<LastBranch>"     -> create a right justified branch
+        new_window.destroy()
 
     def get_main_menu(self, window):
         accel_group = gtk.AccelGroup()
 
-        # This function initializes the item factory.
-        # Param 1: The type of menu - can be MenuBar, Menu,
-        #          or OptionMenu.
-        # Param 2: The path of the menu.
-        # Param 3: A reference to an AccelGroup. The item factory sets up
-        #          the accelerator table while generating menus.
         item_factory = gtk.ItemFactory(gtk.MenuBar, "<main>", accel_group)
 
         # This method generates the menu items. Pass to the item factory
@@ -647,7 +589,6 @@ class TextEditor:
         self.treestore = gtk.TreeStore(str)
 
         global t
-        # we'll add some data now - 4 rows with 3 child rows each
 
         for parent in t:
             piter = self.treestore.append(None, ['parent variable : %s' % parent[1]])
@@ -705,7 +646,7 @@ class TextEditor:
 
 
 
-
+#  ----------       Saving Functions    --------------------
     def save_underline_child(self,underline_child):
         global underline
         underline.append(underline_child)
@@ -716,14 +657,17 @@ class TextEditor:
 
 
     def save_bold_child(self,bold_child):
+
         global bold
         bold.append(bold_child)
         print bold
+
     def save_parent(self, parent_list):
         global t
         t.append(parent_list)
         print t
         return t
+
     def save_child(self, child_list):
         global t_child
         t_child.append(child_list)
@@ -744,12 +688,12 @@ class TextEditor:
             enditer = self.buffer.get_end_iter()
             savedText = str(self.buffer.get_text(startiter, enditer))
             savedText = savedText +','+ '|'+',' + str(t)+',' + '|'+','+ str(t_child)+',' + '|'+',' + str(bold)+',' + '|'+',' + str(italic)+',' + '|'+',' + str(underline)
-            fout.write(savedText)
+            fout.write(savedText) #send this to core
 
         finally:
             fout.close()
 
-
+#This is for open function
 class FileSel(gtk.FileSelection):
     def __init__(self):
         gtk.FileSelection.__init__(self)
