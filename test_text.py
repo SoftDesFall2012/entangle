@@ -334,7 +334,8 @@ class TextEditor:
         self.treeview.set_reorderable(True)
 
         global box3
-
+        #box3.pack_start_default
+        print box3.get_homogeneous()
         box3.pack_start(self.treeview, False, False, 0)
         #frame2.add(self.treeview)
         self.treeview.show()
@@ -725,7 +726,7 @@ class TextEditor:
             startiter = self.buffer.get_start_iter()
             enditer = self.buffer.get_end_iter()
             savedText = str(self.buffer.get_text(startiter, enditer))
-            savedText = savedText + '|' + str(t) + '|'+ str(t_child) + '|' + str(bold) + '|' + str(italic) + '|' + str(underline)
+            savedText = savedText+',' + '|' +','+ str(t)+',' + '|'+','+ str(t_child)+',' + '|' +','+ str(bold)+',' + '|'+',' + str(italic)+',' + '|'+',' + str(underline)
             fout.write(savedText)
 
         finally:

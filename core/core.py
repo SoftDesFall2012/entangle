@@ -2,7 +2,7 @@ class core:
 
     def __init__(self):
 
-        self.output = open('txt_save.txt').read()
+        self.output = open('text_save.txt').read()
 
         self.buffer = self.output
 
@@ -145,7 +145,8 @@ class core:
 
         final_body = '\n<body onload="'+tangle_functions+'">\n'
 
-        for i in range(n_txt+1):
+        for i in range(n_txt):
+
             working_body = strip_body[i]
 
             for n in range(len(self.count)):
@@ -179,8 +180,7 @@ class core:
 
             avg = (int(self.count[i][3])+int(self.count[i][4]))/2
             hunterdos = 'hunter'+str(i)
-            print hunterdos
-            print avg
+
             self.header = self.header.replace(hunterdos,str(avg))
 
     def do_assemble(self):
