@@ -15,75 +15,36 @@
 
 
 	<script type = "text/javascript">
-		function feetinches () {
+		function centimetersfeet () {
 
 			var element = document.getElementById("0");
 			var tangle = new Tangle(element, {
 				initialize: function() {
-					this.feet = 5;
-					this.inchesPerfeet = 12;
+					this.centimeters = 175;
+					this.feetPercentimeters = 30;
 				},
 				update: function () {
-					this.inches = this.feet*this.inchesPerfeet;
-				}
-			});
-		}
-	</script>
-
-
-	<script type = "text/javascript">
-		function cmmeter () {
-
-			var element = document.getElementById("1");
-			var tangle = new Tangle(element, {
-				initialize: function() {
-					this.cm = 175;
-					this.meterPercm = 100;
-				},
-				update: function () {
-					this.meter = this.cm/this.meterPercm;
-				}
-			});
-		}
-	</script>
-
-
-	<script type = "text/javascript">
-		function daysmonths () {
-
-			var element = document.getElementById("2");
-			var tangle = new Tangle(element, {
-				initialize: function() {
-					this.days = 310;
-					this.monthsPerdays = 17;
-				},
-				update: function () {
-					this.months = this.days+this.monthsPerdays;
-				}
-			});
-		}
-	</script>
-
-
-	<script type = "text/javascript">
-		function cookiescakes () {
-
-			var element = document.getElementById("3");
-			var tangle = new Tangle(element, {
-				initialize: function() {
-					this.cookies = 600;
-					this.cakesPercookies = 19;
-				},
-				update: function () {
-					this.cakes = this.cookies-this.cakesPercookies;
+					this.feet = this.centimeters/this.feetPercentimeters;
 				}
 			});
 		}
 	</script>
 </head>
-<body onload="feetinches();cmmeter();daysmonths();cookiescakes();">
+<body onload="centimetersfeet();">
+	<p>
+	<b>Test Document</b>
+	</p>
+
+	<p>
+	
+	</p>
+
+	<p>
+	Hello, my name is Jong.
+	</p>
+
 	<p id="0">
-		I am <span data-var="feet" class="TKAdjustableNumber" data-min=" 4" data-max=" 7"> feet</span>,  I am <span data-var="inches"></span> inches. 
+		In Korea, I am <span data-var="centimeters" class="TKAdjustableNumber" data-min=" 160" data-max=" 190"> centimeters</span> tall. In the US, I am <span data-var="feet"></span> feet tall.
 	</p>
 
 	<p>
@@ -91,11 +52,11 @@
 	</p>
 
 	<p>
-	My name is Jong.
+	Hello, my name is Helen.
 	</p>
 
-	<p id="1">
-		I am <span data-var="cm" class="TKAdjustableNumber" data-min=" 150" data-max=" 200"> cm</span>, I am <span data-var="meter"></span> meter. 
+	<p>
+	My favorite book is Harry Potter: The Sorcerer's Stone.
 	</p>
 
 	<p>
@@ -103,27 +64,11 @@
 	</p>
 
 	<p>
-	
+	Hello, my name is Nathan.
 	</p>
 
 	<p>
-	My name is Helen. 
-	</p>
-
-	<p id="2">
-		I am testing adding.  <span data-var="days" class="TKAdjustableNumber" data-min=" 20" data-max=" 600"> days</span> <span data-var="months"></span> months
-	</p>
-
-	<p>
-	
-	</p>
-
-	<p>
-	My name is Bob.
-	</p>
-
-	<p id="3">
-		I am testing subtracting. <span data-var="cookies" class="TKAdjustableNumber" data-min=" 500" data-max=" 700"> cookies</span> <span data-var="cakes"></span> cakes
+	Since I've got ADHD, I only read short stories like "<i>The Lottery</i>" by Shirley Jackson.
 	</p>
 
 </body>
